@@ -1,0 +1,16 @@
+{
+  "name": "mock-challenge-api",
+  "version": "1.0.0",
+  "description": "mock challenge api v5",
+  "main": "mock-challenge-api.js",
+  "dependencies": {
+    "http-json-response": "^1.0.1",
+    "lodash": "^4.17.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node mock-challenge-api.js"
+  },
+  "author": "TCSCODER",
+  "license": "UNLICENSED"
+}

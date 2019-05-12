@@ -1,0 +1,11 @@
+.idea
+node_modules
+*.log
+.DS_Store
+.env
+coverage
+.nyc_output
+docker/api.env
+*.key
+*cert
+*-global-appvar.json

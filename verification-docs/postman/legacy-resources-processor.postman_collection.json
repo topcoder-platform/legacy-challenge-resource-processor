@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "d7e27e5c-da09-46b0-82c9-b9c898092531",
+		"name": "legacy-resources-processor",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add Submitter - lazybaer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{m2mToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"roleId\":1,\n\t\"resourceUserId\":23225544,\n\t\"isStudio\":false\n}"
+				},
+				"url": {
+					"raw": "https://api.topcoder-dev.com/v4/challenges/{{CHALLENGE_ID}}/resources",
+					"protocol": "https",
+					"host": [
+						"api",
+						"topcoder-dev",
+						"com"
+					],
+					"path": [
+						"v4",
+						"challenges",
+						"{{CHALLENGE_ID}}",
+						"resources"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Challenge Resources",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{m2mToken}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://api.topcoder-dev.com/v4/challenges/{{CHALLENGE_ID}}/resources",
+					"protocol": "https",
+					"host": [
+						"api",
+						"topcoder-dev",
+						"com"
+					],
+					"path": [
+						"v4",
+						"challenges",
+						"{{CHALLENGE_ID}}",
+						"resources"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-machine-token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "87994d1c-bb1e-47e8-bda9-c9acbe1f0d99",
+						"exec": [
+							"var data = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"m2mToken\", data.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJhZG1pbmlzdHJhdG9yIl0sImlzcyI6Imh0dHBzOi8vYXBpLnRvcGNvZGVyLWRldi5jb20iLCJoYW5kbGUiOiJoZWZmYW4iLCJleHAiOjE3NjYyODkyNDYsInVzZXJJZCI6IjEzMjQ1NiIsImlhdCI6MTQ1MDkyOTI0NiwiZW1haWwiOm51bGwsImp0aSI6IjEzNjljNjAwLWUwYTEtNDUyNS1hN2M3LTU2YmU3ZDgxM2Y1MSJ9.hp5peSoj-fh3KFkskvBpfUFIcJNtsv4zIMFV-D8F3JA"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"grant_type\":\"client_credentials\",\n\t\"client_id\": \"e6oZAxnoFvjdRtjJs1Jt3tquLnNSTs0e\",\n\t\"client_secret\": \"OGCzOnQkhYTQpZM3NI0sD--JJ_EPcm2E7707_k6zX11m223LrRK1-QZL4Pon4y-D\",\n\t\"audience\": \"https://m2m.topcoder-dev.com/\"\n}"
+				},
+				"url": {
+					"raw": "https://topcoder-dev.auth0.com/oauth/token",
+					"protocol": "https",
+					"host": [
+						"topcoder-dev",
+						"auth0",
+						"com"
+					],
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Submitter - lazybaer",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{m2mToken}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"roleId\":1,\n\t\"resourceUserId\":23225544,\n\t\"isStudio\":false\n}"
+				},
+				"url": {
+					"raw": "https://api.topcoder-dev.com/v4/challenges/{{CHALLENGE_ID}}/resources",
+					"protocol": "https",
+					"host": [
+						"api",
+						"topcoder-dev",
+						"com"
+					],
+					"path": [
+						"v4",
+						"challenges",
+						"{{CHALLENGE_ID}}",
+						"resources"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

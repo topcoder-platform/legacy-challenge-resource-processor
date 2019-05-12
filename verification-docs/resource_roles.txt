@@ -1,0 +1,27 @@
+resource_role_id|phase_type_id|name                   |description            |create_user|create_date        |modify_user|modify_date        |
+----------------|-------------|-----------------------|-----------------------|-----------|-------------------|-----------|-------------------|
+               1|             |Submitter              |Submitter              |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               2|            3|Primary Screener       |Primary Screener       |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               3|            3|Screener               |Screener               |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               4|            4|Reviewer               |Reviewer               |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               5|            4|Accuracy Reviewer      |Accuracy Reviewer      |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               6|            4|Failure Reviewer       |Failure Reviewer       |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               7|            4|Stress Reviewer        |Stress Reviewer        |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               8|            7|Aggregator             |Aggregator             |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+               9|           10|Final Reviewer         |Final Reviewer         |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+              10|             |Approver               |Approver               |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+              11|             |Designer               |Designer               |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+              12|             |Observer               |Observer               |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+              13|             |Manager                |Manager                |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+              14|             |Copilot                |Copilot                |System     |2010-01-13 08:54:35|System     |2010-01-13 08:54:35|
+              15|             |Client Manager         |Client Manager         |System     |2010-01-13 08:54:35|System     |2010-01-13 08:54:35|
+              16|             |Post-Mortem Reviewer   |Post-Mortem Reviewer   |System     |2018-07-26 08:41:55|System     |2018-07-26 08:41:55|
+              17|             |Specification Submitter|Specification Submitter|System     |2018-07-26 08:41:55|System     |2018-07-26 08:41:55|
+              18|           14|Specification Reviewer |Specification Reviewer |System     |2018-07-26 08:41:55|System     |2018-07-26 08:41:55|
+            1001|             |Team Captain           |Team Captain           |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+            1002|             |Free Agent             |Free Agent             |System     |2006-11-02 20:14:24|System     |2006-11-02 20:14:24|
+            1003|             |Payment Manager        |Payment Manager        |System     |2009-03-16 20:27:00|System     |2009-03-16 20:27:00|
+              86|             |Deactivated            |Deactivated            |System     |2008-12-04 14:51:25|System     |2008-12-04 14:51:25|
+              19|           16|Checkpoint Screener    |Checkpoint Screener    |System     |2010-12-04 14:51:25|System     |2010-12-04 14:51:25|
+              20|           17|Checkpoint Reviewer    |Checkpoint Reviewer    |System     |2010-12-04 14:51:25|System     |2010-12-04 14:51:25|
+              21|             |Iterative Reviewer     |Iterative Reviewer     |System     |2010-12-04 14:51:25|System     |2010-12-04 14:51:25|
