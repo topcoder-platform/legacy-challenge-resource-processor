@@ -23,7 +23,7 @@ module.exports = {
   AUTH0_URL: process.env.AUTH0_URL || 'https://topcoder-dev.auth0.com/oauth/token', // Auth0 credentials for M2M token
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://m2m.topcoder-dev.com/',
   AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID || 'e6oZAxnoFvjdRtjJs1Jt3tquLnNSTs0e',
-  AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET || 'OGCzOnQkhYTQpZM3NI0sD--JJ_EPcm2E7707_k6zX11m223LrRK1-QZL4Pon4y-D',
+  AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET || 'invalid',
   AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL || 'https://topcoder-dev.auth0.com/oauth/token',
   TOKEN_CACHE_TIME: 90
 }
