@@ -1,7 +1,8 @@
 {
-  "name": "legacy-resources-processor",
+  "name": "legacy-challenge-resource-processor",
   "version": "1.0.0",
-  "description": "Topcoder Legacy Resources Processor",
+  "description": "Topcoder Legacy Challenge Resource Processor",
+  "repository": "https://github.com/topcoder-platform/legacy-challenge-resource-processor",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
