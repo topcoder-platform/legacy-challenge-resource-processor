@@ -45,7 +45,12 @@ async function _updateChallengeResource (message, isDelete) {
  * @param {Object} message The message containing the information of the resource to create.
  */
 async function createChallengeResource (message) {
-  await _updateChallengeResource(message, false)
+  try {
+    await _updateChallengeResource(message, false)
+  } catch (e) {
+    logger.logFullError(e)
+    logger.debug(e.message)
+  }
 
   logger.info(`Successfully processed create challenge resource message : ${JSON.stringify(message)}`)
 }
