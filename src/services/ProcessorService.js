@@ -9,6 +9,26 @@ const helper = require('../common/helper')
 const {getRoleIdByUuid, isStudio} = require('../common/utils')
 
 /**
+ * Check if a challenge exists on legacy (v4)
+ * @param {Object} message The message containing the challenge resource information
+ */
+async function legacyChallengeExist (message) {
+  let exists = false
+  try {
+    const m2mToken = await helper.getM2Mtoken()
+    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`, m2mToken)
+    const v5Challenge = res.body
+    if (!v5Challenge.legacyId) {
+      exists = false
+    }
+    await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`, m2mToken)
+  } catch (e) {
+    exists = false
+  }
+  return exists
+}
+
+/**
  * Updates (create or delete) a challenge resource based on the isDelete flag
  *
  * @param {Object} message The message containing the challenge resource information
@@ -84,7 +104,8 @@ deleteChallengeResource.schema = createChallengeResource.schema
 
 module.exports = {
   createChallengeResource,
-  deleteChallengeResource
+  deleteChallengeResource,
+  legacyChallengeExist
 }
 
 logger.buildService(module.exports)
