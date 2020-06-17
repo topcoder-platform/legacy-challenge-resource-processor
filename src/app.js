@@ -33,15 +33,26 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
     return
   }
   try {
-    switch (topic) {
-      case config.CREATE_CHALLENGE_RESOURCE_TOPIC :
-        await ProcessorService.createChallengeResource(messageJSON)
-        break
-      case config.DELETE_CHALLENGE_RESOURCE_TOPIC:
-        await ProcessorService.deleteChallengeResource(messageJSON)
-        break
-      default:
-        throw new Error(`Invalid topic: ${topic}`)
+    const challengeExistsOnLegacy = await ProcessorService.legacyChallengeExist(messageJSON)
+    if (challengeExistsOnLegacy) {
+      switch (topic) {
+        case config.CREATE_CHALLENGE_RESOURCE_TOPIC :
+          await ProcessorService.createChallengeResource(messageJSON)
+          break
+        case config.DELETE_CHALLENGE_RESOURCE_TOPIC:
+          await ProcessorService.deleteChallengeResource(messageJSON)
+          break
+        default:
+          throw new Error(`Invalid topic: ${topic}`)
+      }
+    } else {
+      logger.info('Challenge does not exist yet. Will post the same message back to the bus API')
+      await new Promise((resolve) => {
+        setTimeout(async () => {
+          await helper.postBusEvent(topic, messageJSON.payload)
+          resolve()
+        }, config.RETRY_TIMEOUT)
+      })
     }
     // only commit if no errors
     await consumer.commitOffset({ topic, partition, offset: m.offset })

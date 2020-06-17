@@ -9,6 +9,13 @@ module.exports = {
   // Kafka consumer config
   KAFKA_URL: process.env.KAFKA_URL || 'localhost:9092',
   KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || 'legacy-resources-processor-group',
+  BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
+  KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'common.error.reporting',
+  RETRY_TIMEOUT: process.env.RETRY_TIMEOUT || 10 * 1000,
+  EVENT_ORIGINATOR: process.env.EVENT_ORIGINATOR || 'legacy-challenge-resource-processor',
+  EVENT_MIME_TYPE: process.env.EVENT_MIME_TYPE || 'application/json',
+
+
   // below are used for secure Kafka connection, they are optional
   // for the local Kafka, they are not needed
   KAFKA_CLIENT_CERT: process.env.KAFKA_CLIENT_CERT,

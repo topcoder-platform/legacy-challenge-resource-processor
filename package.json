@@ -36,6 +36,7 @@
     "superagent": "^4.1.0",
     "tc-core-library-js": "git+https://github.com/appirio-tech/tc-core-library-js.git#v2.6.2",
     "topcoder-healthcheck-dropin": "^1.0.2",
+    "topcoder-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git",
     "winston": "^2.2.0"
   },
   "engines": {
