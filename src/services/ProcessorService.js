@@ -95,7 +95,11 @@ createChallengeResource.schema = {
  * @param {Object} message The message containing the information of the resource to delete.
  */
 async function deleteChallengeResource (message) {
-  await _updateChallengeResource(message, true)
+  try {
+    await _updateChallengeResource(message, true)
+  } catch (e) {
+    logger.info(`Failed to find and delete the resource: ${JSON.stringify(message)}`)
+  }
 
   logger.info(`Successfully processed delete challenge resource message : ${JSON.stringify(message)}`)
 }
