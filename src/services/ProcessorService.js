@@ -6,7 +6,7 @@ const Joi = require('joi')
 const config = require('config')
 const logger = require('../common/logger')
 const helper = require('../common/helper')
-const {getRoleIdByUuid, isStudio} = require('../common/utils')
+const {isStudio} = require('../common/utils')
 
 /**
  * Check if a challenge exists on legacy (v4)
@@ -50,9 +50,14 @@ async function _updateChallengeResource (message, isDelete) {
   } catch (err) {
     throw new Error(`Challenge with uuid ${_.get(message, 'payload.challengeId')} does not exist.`)
   }
-
+  let resourceRole = null
+  try {
+    [resourceRole] = await helper.getRequest(`${config.RESOURCE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
+  } catch (err) {
+    throw new Error(`Resource Role ${_.get(message, 'payload.roleId')} not found.`)
+  }
   const body = {
-    roleId: getRoleIdByUuid(message.payload.roleId),
+    roleId: resourceRole.legacyId,
     resourceUserId: _.get(message, 'payload.memberId'),
     isStudio: isStudio(v5Challenge.type)
   }
