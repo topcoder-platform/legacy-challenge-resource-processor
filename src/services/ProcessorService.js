@@ -66,8 +66,9 @@ async function _updateChallengeResource (message, isDelete) {
   } catch (err) {
     throw new Error(`Resource Role ${_.get(message, 'payload.roleId')} not found. ${JSON.stringify(err)}`)
   }
+  logger.debug(`Resource Role Response ${JSON.stringify(resourceRole)}`)
   const body = {
-    roleId: resourceRole[0].legacyId,
+    roleId: resourceRole.legacyId,
     resourceUserId: _.get(message, 'payload.memberId'),
     isStudio: isStudio(v5Challenge.type)
   }
