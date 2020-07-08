@@ -15,6 +15,11 @@ const ProcessorService = require('./services/ProcessorService')
 const options = getKafkaOptions()
 const consumer = new Kafka.GroupConsumer(options)
 
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason)
+  // application specific logging, throwing an error, or other logic here
+})
+
 // data handler
 const dataHandler = async (messageSet, topic, partition) => Promise.each(messageSet, async (m) => {
   const message = m.message.value.toString('utf8')
@@ -35,6 +40,7 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
   }
   try {
     const challengeExistsOnLegacy = await ProcessorService.legacyChallengeExist(messageJSON)
+    logger.debug(`Message ${JSON.stringify(messageJSON)}`)
     if (challengeExistsOnLegacy) {
       switch (topic) {
         case config.CREATE_CHALLENGE_RESOURCE_TOPIC :
