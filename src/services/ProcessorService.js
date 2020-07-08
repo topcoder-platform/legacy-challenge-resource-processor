@@ -60,12 +60,14 @@ async function _updateChallengeResource (message, isDelete) {
     throw new Error(`Challenge with uuid ${challengeId} does not exist.`)
   }
   let resourceRole = null
+  let resourceRoleResponse = null
   try {
     logger.debug(`Calling ${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`)
-    resourceRole = await helper.getRequest(`${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
+    resourceRoleResponse = await helper.getRequest(`${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
   } catch (err) {
     throw new Error(`Resource Role ${_.get(message, 'payload.roleId')} not found. ${JSON.stringify(err)}`)
   }
+  resourceRole = resourceRoleResponse.body[0]
   logger.debug(`Resource Role Response ${JSON.stringify(resourceRole)}`)
   const body = {
     roleId: resourceRole.legacyId,
