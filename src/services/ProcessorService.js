@@ -13,7 +13,7 @@ const {getRoleIdByUuid, isStudio} = require('../common/utils')
  * @param {Object} message The message containing the challenge resource information
  */
 async function legacyChallengeExist (message) {
-  let exists = false
+  let exists = true
   try {
     const m2mToken = await helper.getM2Mtoken()
     const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`, m2mToken)
