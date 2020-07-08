@@ -52,7 +52,7 @@ async function _updateChallengeResource (message, isDelete) {
   }
   let resourceRole = null
   try {
-    [resourceRole] = await helper.getRequest(`${config.RESOURCE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
+    [resourceRole] = await helper.getRequest(`${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
   } catch (err) {
     throw new Error(`Resource Role ${_.get(message, 'payload.roleId')} not found.`)
   }
