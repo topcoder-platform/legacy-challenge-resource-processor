@@ -25,7 +25,7 @@ module.exports = {
 
   CHALLENGE_API_V4_URL: process.env.CHALLENGE_API_V4_URL || 'https://api.topcoder-dev.com/v4/challenges',
   CHALLENGE_API_V5_URL: process.env.CHALLENGE_API_V5_URL || 'http://localhost:3001/v5/challenges',
-  RESOURCE_ROLE_API_URL: process.env.RESOURCE_ROLE_API_URL || 'https://api.topcoder-dev.com/v4/resource-roles',
+  RESOURCE_ROLE_API_URL: process.env.RESOURCE_ROLE_API_URL || 'https://api.topcoder-dev.com/v5/resource-roles',
 
   AUTH0_URL: process.env.AUTH0_URL || 'https://topcoder-dev.auth0.com/oauth/token', // Auth0 credentials for M2M token
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://m2m.topcoder-dev.com/',
