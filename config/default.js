@@ -15,7 +15,6 @@ module.exports = {
   EVENT_ORIGINATOR: process.env.EVENT_ORIGINATOR || 'legacy-challenge-resource-processor',
   EVENT_MIME_TYPE: process.env.EVENT_MIME_TYPE || 'application/json',
 
-
   // below are used for secure Kafka connection, they are optional
   // for the local Kafka, they are not needed
   KAFKA_CLIENT_CERT: process.env.KAFKA_CLIENT_CERT,

@@ -14,11 +14,15 @@ const {isStudio} = require('../common/utils')
  */
 async function legacyChallengeExist (message) {
   let exists = true
+  const challengeId = _.get(message, 'payload.challengeId')
+  if (_.isNil(challengeId)) {
+    throw new Error(`Challenge ID ${challengeId} is null`)
+  }
   try {
     const m2mToken = await helper.getM2Mtoken()
-    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`, m2mToken)
+    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
     // logger.debug(`m2m Token: ${m2mToken}`)
-    logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`)
+    logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${challengeId}`)
     logger.debug(`Response ${JSON.stringify(res.body)}`)
     const v5Challenge = res.body
     if (!v5Challenge.legacyId) {
@@ -42,13 +46,18 @@ async function legacyChallengeExist (message) {
  */
 async function _updateChallengeResource (message, isDelete) {
   const m2mToken = await helper.getM2Mtoken()
+  const challengeId = _.get(message, 'payload.challengeId')
+
+  if (_.isNil(challengeId)) {
+    throw new Error(`Challenge ID ${challengeId} is null`)
+  }
 
   let v5Challenge = null
   try {
-    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`, m2mToken)
+    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
     v5Challenge = res.body
   } catch (err) {
-    throw new Error(`Challenge with uuid ${_.get(message, 'payload.challengeId')} does not exist.`)
+    throw new Error(`Challenge with uuid ${challengeId} does not exist.`)
   }
   let resourceRole = null
   try {
