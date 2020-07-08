@@ -17,7 +17,7 @@ async function legacyChallengeExist (message) {
   try {
     const m2mToken = await helper.getM2Mtoken()
     const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`, m2mToken)
-    logger.debug(`m2m Token: ${m2mToken}`)
+    // logger.debug(`m2m Token: ${m2mToken}`)
     logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`)
     logger.debug(`Response ${JSON.stringify(res.body)}`)
     const v5Challenge = res.body
@@ -59,8 +59,10 @@ async function _updateChallengeResource (message, isDelete) {
 
   // create or delete the challenge resource from V4 API
   if (isDelete) {
+    logger.debug(`Deleteing Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
     await helper.deleteRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
   } else {
+    logger.debug(`POSTING Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
     await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
   }
 }
