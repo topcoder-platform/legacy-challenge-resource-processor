@@ -61,12 +61,13 @@ async function _updateChallengeResource (message, isDelete) {
   }
   let resourceRole = null
   try {
-    [resourceRole] = await helper.getRequest(`${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
+    logger.debug(`Calling ${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`)
+    resourceRole = await helper.getRequest(`${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
   } catch (err) {
     throw new Error(`Resource Role ${_.get(message, 'payload.roleId')} not found.`)
   }
   const body = {
-    roleId: resourceRole.legacyId,
+    roleId: resourceRole[0].legacyId,
     resourceUserId: _.get(message, 'payload.memberId'),
     isStudio: isStudio(v5Challenge.type)
   }
