@@ -17,12 +17,18 @@ async function legacyChallengeExist (message) {
   try {
     const m2mToken = await helper.getM2Mtoken()
     const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`, m2mToken)
+    logger.debug(`m2m Token: ${m2mToken}`)
+    logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${_.get(message, 'payload.challengeId')}`)
+    logger.debug(`Response ${JSON.stringify(res.body)}`)
     const v5Challenge = res.body
     if (!v5Challenge.legacyId) {
       exists = false
     }
     await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`, m2mToken)
+
+    logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`)
   } catch (e) {
+    logger.error(`error getting legacy challenge ${JSON.stringify(e)}`)
     exists = false
   }
   return exists
