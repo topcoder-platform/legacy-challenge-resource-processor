@@ -69,20 +69,22 @@ async function _updateChallengeResource (message, isDelete) {
   }
   resourceRole = resourceRoleResponse.body[0]
   logger.debug(`Resource Role Response ${JSON.stringify(resourceRole)}`)
-  const body = {
-    roleId: resourceRole.legacyId,
-    resourceUserId: _.get(message, 'payload.memberId'),
-    isStudio: isStudio(v5Challenge.type)
-  }
+  const body = {}
+  const userId = _.get(message, 'payload.memberId')
+  // const body = {
+  //   roleId: resourceRole.legacyId,
+  //   resourceUserId: _.get(message, 'payload.memberId'),
+  //   isStudio: isStudio(v5Challenge.type)
+  // }
 
   // create or delete the challenge resource from V4 API
   let response = null
   if (isDelete) {
-    logger.debug(`Deleteing Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
-    response = await helper.deleteRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
+    logger.debug(`Deleteing Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId} - ${JSON.stringify(body)}`)
+    response = await helper.deleteRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}`, body, m2mToken)
   } else {
-    logger.debug(`POSTING Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
-    response = await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
+    logger.debug(`POSTING Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
+    response = await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, body, m2mToken)
   }
   logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)
 }
