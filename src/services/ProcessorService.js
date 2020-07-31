@@ -151,4 +151,4 @@ module.exports = {
   legacyChallengeExist
 }
 
-logger.buildService(module.exports)
+// logger.buildService(module.exports)
