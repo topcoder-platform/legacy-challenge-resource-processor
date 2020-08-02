@@ -27,12 +27,13 @@ async function legacyChallengeExist (message) {
     const v5Challenge = res.body
     if (!v5Challenge.legacyId) {
       exists = false
+      logger.warn(`Challenge ${challengeId} does not have a legacyId. Can't fetch details from V4`)
+    } else {
+      logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`)
+      await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`, m2mToken)
     }
-    await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`, m2mToken)
-
-    logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`)
   } catch (e) {
-    logger.error(`error getting legacy challenge ${JSON.stringify(e)}`)
+    logger.warn(`error getting legacy challenge ${JSON.stringify(e)}`)
     exists = false
   }
   return exists
