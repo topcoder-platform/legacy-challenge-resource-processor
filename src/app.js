@@ -54,7 +54,7 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
           throw new Error(`Invalid topic: ${topic}`)
       }
     } else {
-      const challengeId = get(message, 'payload.challengeId')
+      const challengeId = get(messageJSON, 'payload.challengeId')
       if (isNil(challengeId)) {
         throw new Error(`Challenge ID ${challengeId} is null, will not queue to retry`)
       } else {
