@@ -8,7 +8,7 @@ const { isNil, get } = require('lodash')
 const Kafka = require('no-kafka')
 const healthcheck = require('topcoder-healthcheck-dropin')
 const logger = require('./common/logger')
-const helper = require('./common/helper')
+// const helper = require('./common/helper')
 const { getKafkaOptions } = require('./common/utils')
 const ProcessorService = require('./services/ProcessorService')
 
@@ -58,13 +58,14 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
       if (isNil(challengeId)) {
         throw new Error(`Challenge ID ${challengeId} is null, will not queue to retry`)
       } else {
-        logger.info('Challenge does not exist yet. Will post the same message back to the bus API')
-        await new Promise((resolve) => {
-          setTimeout(async () => {
-            await helper.postBusEvent(topic, messageJSON.payload)
-            resolve()
-          }, config.RETRY_TIMEOUT)
-        })
+        logger.error('Legacy Challenge does not exist yet. Not Posting to Bus API for now')
+        logger.error(`Message JSON: ${JSON.stringify(messageJSON)}`)
+        // await new Promise((resolve) => {
+        //   setTimeout(async () => {
+        //     await helper.postBusEvent(topic, messageJSON.payload)
+        //     resolve()
+        //   }, config.RETRY_TIMEOUT)
+        // })
       }
     }
     // only commit if no errors

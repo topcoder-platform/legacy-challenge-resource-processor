@@ -107,12 +107,11 @@ async function _updateChallengeResource (message, isDelete) {
 async function createChallengeResource (message) {
   try {
     await _updateChallengeResource(message, false)
+    logger.info(`Successfully processed create challenge resource message : ${JSON.stringify(message)}`)
   } catch (e) {
     logger.logFullError(e)
     logger.debug(e.message)
   }
-
-  logger.info(`Successfully processed create challenge resource message : ${JSON.stringify(message)}`)
 }
 
 createChallengeResource.schema = {
@@ -137,11 +136,10 @@ createChallengeResource.schema = {
 async function deleteChallengeResource (message) {
   try {
     await _updateChallengeResource(message, true)
+    logger.info(`Successfully processed delete challenge resource message : ${JSON.stringify(message)}`)
   } catch (e) {
     logger.info(`Failed to find and delete the resource: ${JSON.stringify(message)}`)
   }
-
-  logger.info(`Successfully processed delete challenge resource message : ${JSON.stringify(message)}`)
 }
 
 deleteChallengeResource.schema = createChallengeResource.schema
