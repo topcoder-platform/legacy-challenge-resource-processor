@@ -35,7 +35,7 @@ The following parameters can be set in config files or in env variables:
 - DISABLE_LOGGING: whether to disable logging, default is false
 - LOG_LEVEL: the log level; default value: 'debug'
 - KAFKA_URL: comma separated Kafka hosts for consumer to listen; default value: 'localhost:9092'
-- KAFKA_GROUP_ID: Kafka consumer group id; default value: 'legacy-resources-processor-group'
+- KAFKA_GROUP_ID: Kafka consumer group id; default value: 'legacy-challenge-resource-processor-group'
 - KAFKA_CLIENT_CERT: Kafka connection certificate, optional; default value is undefined;
 - KAFKA_ERROR_TOPIC: The kafka error topic.
 - RETRY_TIMEOUT: The timeout to retry processing the same message

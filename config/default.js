@@ -8,7 +8,7 @@ module.exports = {
 
   // Kafka consumer config
   KAFKA_URL: process.env.KAFKA_URL || 'localhost:9092',
-  KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || 'legacy-resources-processor-group',
+  KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || 'legacy-challenge-resource-processor-group',
   BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
   KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'common.error.reporting',
   RETRY_TIMEOUT: process.env.RETRY_TIMEOUT || 10 * 1000,
