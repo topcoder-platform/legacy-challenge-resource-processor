@@ -57,8 +57,6 @@ if not provided, then SSL connection is not used, direct insecure connection is 
 - AUTH0_CLIENT_SECRET: Auth0 client secret for M2M token
 - IS_CREATE_FORUM: Should create forum resource or not
 - CHALLENGE_ORIGINATOR: originator from challenge service
-- CHALLENGE_USER_UNREGISTRATION_TOPIC: unregistration topic from challenge service
-- CHALLENGE_USER_REGISTRATION_TOPIC: registration topic from challenge service
 
 Also note that there is a `/health` endpoint that checks for the health of the app. This sets up an expressjs server and listens on the environment variable `PORT`. It's not part of the configuration file and needs to be passed as an environment variable
 

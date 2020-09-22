@@ -1,7 +1,5 @@
 const UnRegistrationDAO = require('../dao/UnRegistrationDAO')
 const logger = require('../common/logger')
-const helper = require('../common/helper')
-const config = require('../../config/default')
 const Constants = require('../constants')
 const ForumWrapper = require('../dao/ForumWrapper')
 const EsFeederServiceClient = require('../client/EsFeederServiceClient')
@@ -64,27 +62,7 @@ async function unregisterChallenge (userId, challengeId) {
       }
     }
   }
-  // TODO: implement following logic in nodejs
-  await fireEvent(challengeId, userId)
-  logger.info('notify es es')
   await EsFeederServiceClient.notifyChallengeChange(challengeId)
-}
-
-/**
- * Fire event
- *
- * @param challengeId the challengeId to use
- * @param userId the user id
- */
-async function fireEvent (challengeId, userId) {
-  const message = {
-    type: 'USER_UNREGISTRATION',
-    detail: {
-      challengeId,
-      userId
-    }
-  }
-  await helper.postBusEvent(config.CHALLENGE_USER_UNREGISTRATION_TOPIC, message)
 }
 
 module.exports = {

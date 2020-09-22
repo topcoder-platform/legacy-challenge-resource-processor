@@ -28,8 +28,6 @@ module.exports = {
   DELETE_CHALLENGE_RESOURCE_TOPIC: process.env.DELETE_CHALLENGE_RESOURCE_TOPIC || 'challenge.action.resource.delete',
 
   CHALLENGE_ORIGINATOR: process.env.CHALLENGE_ORIGINATOR || 'app.challenge.service',
-  CHALLENGE_USER_UNREGISTRATION_TOPIC: process.env.CHALLENGE_USER_UNREGISTRATION_TOPIC || 'notifications.kafka.queue.java.test',
-  CHALLENGE_USER_REGISTRATION_TOPIC: process.env.CHALLENGE_USER_REGISTRATION_TOPIC || 'notifications.kafka.queue.java.test',
 
   CHALLENGE_API_V4_URL: process.env.CHALLENGE_API_V4_URL || 'https://api.topcoder-dev.com/v4/challenges',
   CHALLENGE_API_V5_URL: process.env.CHALLENGE_API_V5_URL || 'http://localhost:3001/v5/challenges',
@@ -50,7 +48,7 @@ module.exports = {
     DB_LOCALE: process.env.INFORMIX_DB_LOCALE || 'en_US.57372',
     USER: process.env.INFORMIX_USER || 'informix', // user
     PASSWORD: process.env.INFORMIX_PASSWORD || '1nf0rm1x', // password
-    POOL_MAX_SIZE: parseInt(process.env.MAXPOOL, 10) || 60,
+    POOL_MAX_SIZE: parseInt(process.env.INFORMIX_POOL_MAX_SIZE, 10) || 60,
     maxsize: parseInt(process.env.MAXSIZE) || 0,
     minpool: parseInt(process.env.MINPOOL, 10) || 1,
     idleTimeout: parseInt(process.env.IDLETIMEOUT, 10) || 3600,

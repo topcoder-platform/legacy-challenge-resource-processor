@@ -1,7 +1,6 @@
 const ProjectServices = require('./ProjectService')
 const RegistrationDAO = require('../dao/RegistrationDAO')
 const config = require('config')
-const helper = require('../common/helper')
 const SequenceDAO = require('../dao/SequenceDAO')
 const Constants = require('../constants')
 const ForumsWrapper = require('../dao/ForumWrapper')
@@ -153,7 +152,6 @@ async function removeRole (operatorId, contestId, roleId, userId, phase, addNoti
  */
 async function addResource (operatorId, challengeId, resourceRoleId, isStudio) {
   await assignRole(operatorId, challengeId, resourceRoleId, operatorId, null, false, false, isStudio, false)
-  await fireEvent('ADD_RESOURCE', challengeId, operatorId, resourceRoleId, operatorId, isStudio)
 }
 
 /**
@@ -166,31 +164,6 @@ async function addResource (operatorId, challengeId, resourceRoleId, isStudio) {
  */
 async function removeResource (operatorId, challengeId, resourceRoleId, isStudio) {
   await removeRole(operatorId, challengeId, resourceRoleId, operatorId, null, false, false, isStudio, false)
-  await fireEvent('REMOVE_RESOURCE', challengeId, operatorId, resourceRoleId, operatorId, isStudio)
-}
-
-/**
- * Fire event
- *
- * @param type the message type
- * @param challengeId the challengeId to use
- * @param userId the user id
- * @param resourceRoleId the user id
- * @param operatorId the user id
- * @param isStudio is studio or not
- */
-async function fireEvent (type, challengeId, userId, resourceRoleId, operatorId, isStudio) {
-  const message = {
-    type,
-    detail: {
-      challengeId,
-      userId,
-      resourceRoleId,
-      operatorId,
-      isStudio
-    }
-  }
-  await helper.postBusEvent(config.CHALLENGE_USER_UNREGISTRATION_TOPIC, message)
 }
 
 module.exports = {
