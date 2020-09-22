@@ -5,7 +5,7 @@
   "main": "mock-challenge-api.js",
   "dependencies": {
     "http-json-response": "^1.0.1",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.19"
   },
   "devDependencies": {},
   "scripts": {
