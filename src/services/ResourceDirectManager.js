@@ -1,47 +1,12 @@
 const ProjectServices = require('./ProjectService')
 const RegistrationDAO = require('../dao/RegistrationDAO')
-const config = require('config')
 const SequenceDAO = require('../dao/SequenceDAO')
 const Constants = require('../constants')
-const ForumsWrapper = require('../dao/ForumWrapper')
-
-/**
- * create software forum watch with given parameters.
- * @param forumId
- *            The forum id to use
- * @param userId
- *            The user id to use
- * @param watch
- *            If category watch is to be created
- */
-async function createSoftwareForumWatchAndRole (forumId, userId, watch) {
-  const roleId = 'Software_Moderators_' + forumId
-  if (watch) {
-    await ForumsWrapper.createCategoryWatch(userId, forumId)
-  }
-
-  await ForumsWrapper.assignRole(userId, roleId)
-}
-
-/**
- * create software forum watch with given parameters.
- * @param forumId
- *            The forum id to use
- * @param userId
- *            The user id to use
- */
-async function removeSoftwareForumWatchAndRole (forumId, userId) {
-  const forumRoleId = 'Software_Moderators_' + forumId
-  await ForumsWrapper.deleteCategoryWatch(userId, forumId)
-  await ForumsWrapper.removeRole(userId, forumRoleId)
-}
 
 /**
  * Assign the given roleId to the specified userId in the given project.
  * @param operatorId
- *            the operator id.
- * @param contestId
- *            the id of the contest.
+ * @param contestId the id of the contest/challenge.
  * @param roleId
  *            the id of the role.
  * @param userId
@@ -59,9 +24,6 @@ async function removeSoftwareForumWatchAndRole (forumId, userId) {
  */
 async function assignRole (operatorId, contestId, roleId, userId, phase, addNotification, addForumWatch, isStudio, checkTerm) {
   let found = await ProjectServices.resourceExists(contestId, roleId, userId)
-  // TODO: suppose termChecking is ok and eligible
-  // const termChecking = !checkTerm || checkTerms(contestId, userId, new int[] { (int) roleId })
-  // const eligible = isEligible(userId, contestId, false)
   const termChecking = true
   const eligible = true
   if (found) {
@@ -88,26 +50,14 @@ async function assignRole (operatorId, contestId, roleId, userId, phase, addNoti
     if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {
       await ProjectServices.addNotifications(contestId, userId, Constants.TIMELINE_NOTIFICATION_ID, operatorId)
     }
-    // create forum watch
-    const forumId = await ProjectServices.getForumId(contestId)
-
-    // only check notification for observer
-    if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID) {
-      addForumWatch = true
-    }
-
-    if (forumId > 0 && config.IS_CREATE_FORUM && !isStudio) {
-      await createSoftwareForumWatchAndRole(forumId, userId, addForumWatch)
-    }
   }
 }
 
 /**
  * Assign the given roleId to the specified userId in the given project.
  * @param operatorId
- *            the operator id.
  * @param contestId
- *            the id of the contest.
+ *            the id of the contest/challenge.
  * @param roleId
  *            the id of the role.
  * @param userId
@@ -133,12 +83,6 @@ async function removeRole (operatorId, contestId, roleId, userId, phase, addNoti
     if (+resource.userid === userId) {
       await ProjectServices.removeResource(resource)
     }
-  }
-  // always try to remove notifications. this method does nothing if notification does not exist
-  await ProjectServices.removeNotifications(userId, contestId)
-  const forumId = ProjectServices.getForumId(contestId)
-  if (forumId > 0 && config.IS_CREATE_FORUM && !isStudio) {
-    await removeSoftwareForumWatchAndRole(forumId, userId)
   }
 }
 
