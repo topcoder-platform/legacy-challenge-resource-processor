@@ -1,5 +1,6 @@
 const helper = require('../common/helper')
 const moment = require('moment')
+const logger = require('../common/logger')
 
 const RESOURCE_TYPE_EXT_REF_ID = 1
 const RESOURCE_TYPE_HANDLE_ID = 2
@@ -29,10 +30,12 @@ VALUES
   (?, ?, null, ?, ?, ?, CURRENT, ?, CURRENT)`
 
 async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle) {
+  const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
+  logger.debug(`Reg Date ${regDate}`)
   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, userId, userId, userId])
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
-  await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_REG_DATE, moment())
+  await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_REG_DATE, regDate)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_APPEALS_COMPLETED, 'NO')
 }
 

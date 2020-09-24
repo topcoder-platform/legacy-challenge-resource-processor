@@ -1,7 +1,6 @@
 const ProjectServices = require('./ProjectService')
 const RegistrationDAO = require('../dao/RegistrationDAO')
 const SequenceDAO = require('../dao/SequenceDAO')
-const Constants = require('../constants')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
