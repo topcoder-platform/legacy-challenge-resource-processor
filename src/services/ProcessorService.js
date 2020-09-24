@@ -7,6 +7,7 @@ const config = require('config')
 const logger = require('../common/logger')
 const helper = require('../common/helper')
 const ResourceDirectManager = require('./ResourceDirectManager')
+const ProjectServices = require('./ProjectService')
 const {isStudio} = require('../common/utils')
 
 /**
@@ -86,7 +87,12 @@ async function _updateChallengeResource (message, isDelete) {
   }
 
   let response = null
-
+  const resources = await ProjectServices.searchResources(legacyChallengeID, resourceRoleId)
+  const existingResource = _.find(resources, r => _.toString(r.userid) === _.toString(userId))
+  // if the resource already exists, skip it
+  if (!isDelete && existingResource) {
+    logger.debug(`Will skip creating resource ${userId} with role ${resourceRoleId} for challenge ${legacyChallengeID}`)
+  }
   if (isTask || !forumId || forumId <= 0) {
     if (isDelete) {
       logger.debug(`Deleteing Challenge Resource ${userId} from challenge ${legacyChallengeID}`)
