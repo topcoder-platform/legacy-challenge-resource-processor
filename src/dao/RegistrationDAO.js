@@ -30,7 +30,7 @@ VALUES
   (?, ?, null, ?, ?, ?, CURRENT, ?, CURRENT)`
 
 async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle) {
-  const regDate = moment().format('MM-DD-YYYY HH:mm:ss')
+  const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
   logger.debug(`Reg Date ${regDate}`)
   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, userId, userId, userId])
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)
@@ -441,18 +441,18 @@ INSERT INTO resource_info
 VALUES 
 ( ?, ?, ?, ?, CURRENT, ?, CURRENT)`
 
-const QUERY_INSERT_RESOURCE_INFO_FOR_TYPE6 = `
-INSERT INTO resource_info
-( resource_id,
-  resource_info_type_id,
-  value,
-  create_user,
-  create_date,
-  modify_user,
-  modify_date
-)
-VALUES 
-( ?, ?, CURRENT, ?, CURRENT, ?, CURRENT)`
+// const QUERY_INSERT_RESOURCE_INFO_FOR_TYPE6 = `
+// INSERT INTO resource_info
+// ( resource_id,
+//   resource_info_type_id,
+//   value,
+//   create_user,
+//   create_date,
+//   modify_user,
+//   modify_date
+// )
+// VALUES
+// ( ?, ?, CURRENT, ?, CURRENT, ?, CURRENT)`
 
 /**
  * persist the resource info
@@ -462,11 +462,11 @@ VALUES
  * @param value the value to pass
  */
 async function persistResourceInfo (userId, resourceId, resourceInfoTypeId, value) {
-  if (resourceInfoTypeId === 6) {
-    await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_INFO_FOR_TYPE6, [resourceId, resourceInfoTypeId, userId, userId])
-  } else {
-    await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_INFO, [resourceId, resourceInfoTypeId, value, userId, userId])
-  }
+  // if (resourceInfoTypeId === 6) {
+  //   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_INFO_FOR_TYPE6, [resourceId, resourceInfoTypeId, userId, userId])
+  // } else {
+  await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_INFO, [resourceId, resourceInfoTypeId, value, userId, userId])
+  // }
 }
 
 const QUERY_GET_ALL_RESOURCE_ROLES = 'select resource_role_id as id, name from resource_role_lu'
