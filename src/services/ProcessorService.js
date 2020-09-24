@@ -144,7 +144,7 @@ createChallengeResource.schema = {
       roleId: Joi.string().uuid().required(),
       memberId: Joi.number().integer().min(1).required()
     }).unknown(true).required()
-  }).required()
+  }).unknown(true).required()
 }
 
 /**

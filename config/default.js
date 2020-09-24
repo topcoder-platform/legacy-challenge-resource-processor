@@ -11,6 +11,7 @@ module.exports = {
   KAFKA_GROUP_ID: process.env.KAFKA_GROUP_ID || 'legacy-challenge-resource-processor-group',
   BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
   KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'common.error.reporting',
+  MAX_RETRIES: process.env.MAX_RETRIES || 3,
   RETRY_TIMEOUT: process.env.RETRY_TIMEOUT || 10 * 1000,
   EVENT_ORIGINATOR: process.env.EVENT_ORIGINATOR || 'legacy-challenge-resource-processor',
   EVENT_MIME_TYPE: process.env.EVENT_MIME_TYPE || 'application/json',

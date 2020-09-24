@@ -38,6 +38,7 @@ The following parameters can be set in config files or in env variables:
 - KAFKA_GROUP_ID: Kafka consumer group id; default value: 'legacy-challenge-resource-processor-group'
 - KAFKA_CLIENT_CERT: Kafka connection certificate, optional; default value is undefined;
 - KAFKA_ERROR_TOPIC: The kafka error topic.
+- MAX_RETRIES: the number of max retries; default value: 3
 - RETRY_TIMEOUT: The timeout to retry processing the same message
 - BUSAPI_URL: Bus API URL
 
