@@ -95,7 +95,7 @@ async function _updateChallengeResource (message, isDelete) {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID}`)
       await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle)
     }
-    logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)
+    // logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)
   } else {
     if (resourceRole.id === config.SUBMITTER_ROLE_ID) {
       if (isDelete) {

@@ -172,7 +172,7 @@ async function queryDataFromDB (sql, params) {
  */
 async function executeSQLonDB (sql, params) {
   const connection = await getInformixConnection()
-  logger.debug(`Executing SQL: ${sql} ${JSON.stringify(params)}`)
+  // logger.debug(`Executing SQL: ${sql} ${JSON.stringify(params)}`)
   try {
     await connection.beginTransactionAsync()
     const query = await prepare(connection, sql)
