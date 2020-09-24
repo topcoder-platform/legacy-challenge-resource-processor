@@ -24,10 +24,13 @@ let busApiClient
  * Get Informix connection using the configured parameters
  * @return {Object} Informix connection
  */
-async function getInformixConnection () {
+async function getInformixConnection (database) {
+  if (!database) {
+    database = config.get('INFORMIX.DATABASE')
+  }
   // construct the connection string from the configuration parameters.
   const connectionString = 'SERVER=' + config.get('INFORMIX.SERVER') +
-                           ';DATABASE=' + config.get('INFORMIX.DATABASE') +
+                           ';DATABASE=' + database +
                            ';HOST=' + config.get('INFORMIX.HOST') +
                            ';Protocol=' + config.get('INFORMIX.PROTOCOL') +
                            ';SERVICE=' + config.get('INFORMIX.PORT') +
@@ -169,6 +172,7 @@ async function queryDataFromDB (sql, params) {
  */
 async function executeSQLonDB (sql, params) {
   const connection = await getInformixConnection()
+  logger.debug(`Executing SQL: ${sql} ${JSON.stringify(params)}`)
   try {
     await connection.beginTransactionAsync()
     const query = await prepare(connection, sql)

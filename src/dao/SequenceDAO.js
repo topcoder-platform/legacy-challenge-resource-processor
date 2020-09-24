@@ -10,7 +10,7 @@ const QUERY_GET_RESOURCE_ID_NEXT = 'SELECT SEQUENCE_RESOURCE_ID_SEQ.nextval AS n
 
 async function getNextIdBySQL (sql) {
   let res = null
-  const connection = await helper.getInformixConnection()
+  const connection = await helper.getInformixConnection('common_oltp')
   try {
     await connection.beginTransactionAsync()
     res = await connection.queryAsync(util.format(sql))
