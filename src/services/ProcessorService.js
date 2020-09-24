@@ -72,6 +72,7 @@ async function _updateChallengeResource (message, isDelete) {
   resourceRole = resourceRoleResponse.body[0]
   // logger.debug(`Resource Role Response ${JSON.stringify(resourceRole)}`)
   const userId = _.get(message, 'payload.memberId')
+  const handle = _.get(message, 'payload.memberHandle')
   const resourceRoleId = resourceRole.legacyId
   const legacyChallengeID = _.get(v5Challenge, 'legacyId')
   const isStudioChallenge = isStudio(v5Challenge.type)
@@ -89,10 +90,10 @@ async function _updateChallengeResource (message, isDelete) {
   if (isTask || !forumId || forumId <= 0) {
     if (isDelete) {
       logger.debug(`Deleteing Challenge Resource ${userId} from challenge ${legacyChallengeID}`)
-      await ResourceDirectManager.removeResource(userId, legacyChallengeID, resourceRoleId, isStudioChallenge)
+      await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID}`)
-      await ResourceDirectManager.addResource(userId, legacyChallengeID, resourceRoleId, isStudioChallenge)
+      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle)
     }
     logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)
   } else {

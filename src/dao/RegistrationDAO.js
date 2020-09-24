@@ -1,4 +1,10 @@
 const helper = require('../common/helper')
+const moment = require('moment')
+
+const RESOURCE_TYPE_EXT_REF_ID = 1
+const RESOURCE_TYPE_HANDLE_ID = 2
+const RESOURCE_TYPE_REG_DATE = 6
+const RESOURCE_TYPE_APPEALS_COMPLETED = 13
 
 const QUERY_GET_USER_RELIABILITY = `
 SELECT rating
@@ -22,8 +28,12 @@ INSERT INTO resource
 VALUES
   (?, ?, null, ?, ?, ?, CURRENT, ?, CURRENT)`
 
-async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId) {
+async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle) {
   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, userId, userId, userId])
+  await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)
+  await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
+  await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_REG_DATE, moment())
+  await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_APPEALS_COMPLETED, 'NO')
 }
 
 const QUERY_INSERT_RESOURCE = `
