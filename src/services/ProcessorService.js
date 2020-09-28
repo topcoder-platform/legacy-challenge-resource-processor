@@ -92,6 +92,7 @@ async function _updateChallengeResource (message, isDelete) {
   // if the resource already exists, skip it
   if (!isDelete && existingResource) {
     logger.debug(`Will skip creating resource ${userId} with role ${resourceRoleId} for challenge ${legacyChallengeID}`)
+    return
   }
   if (isTask || !forumId || forumId <= 0) {
     if (isDelete) {
