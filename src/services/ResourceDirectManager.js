@@ -1,6 +1,7 @@
 const ProjectServices = require('./ProjectService')
 const RegistrationDAO = require('../dao/RegistrationDAO')
 const SequenceDAO = require('../dao/SequenceDAO')
+const config = require('config')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
@@ -32,8 +33,13 @@ async function assignRole (legacyChallengeId, roleId, userId, handle) {
     if (!roleToSet) {
       throw new Error('Invalid role id ' + roleId)
     }
+
+    let reviewPhaseId = null
+    if (roleId === config.LEGACY_REVIEWER_ROLE_ID) {
+      reviewPhaseId = await RegistrationDAO.getPhaseIdForPhaseTypeId(legacyChallengeId, config.LEGACY_REVIEW_PHASE_ID)
+    }
     const resourceId = await SequenceDAO.getResourceSeqNextId()
-    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle)
+    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, reviewPhaseId)
 
     // only check notification setting for observer, else always add
     // if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {

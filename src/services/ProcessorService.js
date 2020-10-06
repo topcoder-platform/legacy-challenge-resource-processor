@@ -120,7 +120,7 @@ async function _updateChallengeResource (message, isDelete) {
         logger.debug(`v4 Creating Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
         response = await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
       }
-      logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)
+      logger.debug(`v4 Update Challenge Response ${JSON.stringify(response)}`)
     }
   }
 }

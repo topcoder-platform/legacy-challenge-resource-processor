@@ -55,5 +55,8 @@ module.exports = {
     minpool: parseInt(process.env.MINPOOL, 10) || 1,
     idleTimeout: parseInt(process.env.IDLETIMEOUT, 10) || 3600,
     timeout: parseInt(process.env.TIMEOUT, 10) || 30000
-  }
+  },
+
+  LEGACY_REVIEWER_ROLE_ID: process.env.LEGACY_REVIEWER_ROLE_ID || 4,
+  LEGACY_REVIEW_PHASE_ID: process.env.LEGACY_REVIEW_PHASE_ID || 4
 }

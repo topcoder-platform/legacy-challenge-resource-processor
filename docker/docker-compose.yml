@@ -6,5 +6,5 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
     env_file:
-      - api.env
+      - ../.env
     network_mode: "host"

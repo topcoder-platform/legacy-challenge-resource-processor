@@ -15,6 +15,16 @@ WHERE
 phase_id = (SELECT 111 + project_category_id FROM project WHERE project_id = %d)
 `
 
+const QUERY_GET_REVIEW_PHASE_FOR_CHALLENGE = `
+  SELECT pp.phase_id as phaseid FROM project_phase pp WHERE project_id = %d AND pp.phase_type_id = %d;
+`
+
+async function getPhaseIdForPhaseTypeId (legacyChallengeId, phaseTypeId) {
+  const phaseResult = await helper.queryDataFromDB(QUERY_GET_REVIEW_PHASE_FOR_CHALLENGE, [legacyChallengeId, phaseTypeId])
+  logger.debug(`Get Phase ID - Phase result: ${JSON.stringify(phaseResult)}`)
+  return phaseResult[0].phaseid || null
+}
+
 const QUERY_INSERT_RESOURCE_WITH_ROLE = `
 INSERT INTO resource
   ( resource_id,
@@ -29,10 +39,31 @@ INSERT INTO resource
 VALUES
   (?, ?, null, ?, ?, ?, CURRENT, ?, CURRENT)`
 
-async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle) {
+const QUERY_INSERT_REVIEWER_RESOURCE_WITH_ROLE = `
+  INSERT INTO resource
+    ( resource_id,
+      resource_role_id,
+      project_phase_id,
+      project_id,
+      user_id,
+      project_phase_id,
+      create_user, 
+      create_date, 
+      modify_user,
+      modify_date)
+  VALUES
+    (?, ?, null, ?, ?, ?, ?, CURRENT, ?, CURRENT)`
+
+async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, reviewerPhaseId) {
   const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
   // logger.debug(`Reg Date ${regDate}`)
-  await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, userId, userId, userId])
+  logger.debug(`persistResourceWithRoleId - reviewerPhaseId: ${reviewerPhaseId}`)
+  if (reviewerPhaseId !== null) {
+    await helper.executeSQLonDB(QUERY_INSERT_REVIEWER_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, reviewerPhaseId, userId, userId, userId])
+  } else {
+    await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, userId, userId, userId])
+  }
+
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_REG_DATE, regDate)
@@ -526,6 +557,7 @@ module.exports = {
   insertRegistrationRecord,
   auditChallengeRegistration,
   insertChallengeResult,
+  getPhaseIdForPhaseTypeId,
   getResourceRoles,
   getUseTermsOfAgree
 }
