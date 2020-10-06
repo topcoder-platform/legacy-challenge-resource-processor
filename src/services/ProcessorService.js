@@ -24,8 +24,8 @@ async function legacyChallengeExist (message) {
     const m2mToken = await helper.getM2Mtoken()
     const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
     // logger.debug(`m2m Token: ${m2mToken}`)
-    logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${challengeId}`)
-    logger.debug(`Response ${JSON.stringify(res.body)}`)
+    // logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${challengeId}`)
+    // logger.debug(`Response ${JSON.stringify(res.body)}`)
     const v5Challenge = res.body
     if (!v5Challenge.legacyId) {
       exists = false
@@ -112,7 +112,7 @@ async function _updateChallengeResource (message, isDelete) {
       }
     } else {
       if (isDelete) {
-        logger.debug(`v4 Deleteing Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
+        logger.debug(`v4 Deleting Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
         response = await helper.deleteRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
       } else {
         logger.debug(`v4 Creating Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
@@ -132,11 +132,11 @@ async function createChallengeResource (message) {
   try {
     await _updateChallengeResource(message, false)
   } catch (e) {
+    logger.error(e.message)
     logger.logFullError(e)
-    logger.debug(e.message)
   }
 
-  logger.info(`Successfully processed create challenge resource message : ${JSON.stringify(message)}`)
+  // logger.debug(`Successfully processed create challenge resource message : ${JSON.stringify(message)}`)
 }
 
 createChallengeResource.schema = {
@@ -162,10 +162,10 @@ async function deleteChallengeResource (message) {
   try {
     await _updateChallengeResource(message, true)
   } catch (e) {
-    logger.info(`Failed to find and delete the resource: ${JSON.stringify(message)} Error: ${JSON.stringify(e)}`)
+    logger.error(`Failed to find and delete the resource: ${JSON.stringify(message)} Error: ${JSON.stringify(e)}`)
   }
 
-  logger.info(`Successfully processed delete challenge resource message : ${JSON.stringify(message)}`)
+  // logger.debug(`Successfully processed delete challenge resource message : ${JSON.stringify(message)}`)
 }
 
 deleteChallengeResource.schema = createChallengeResource.schema

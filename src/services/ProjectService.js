@@ -14,7 +14,7 @@ const QUERY_CHECK_RESOURCE_EXISTS = 'SELECT COUNT(*) as num FROM resource WHERE 
  */
 async function resourceExists (challengeId, roleId, userId) {
   const result = helper.queryDataFromDB(QUERY_CHECK_RESOURCE_EXISTS, [challengeId, roleId, toInteger(userId)])
-  logger.debug(`resourceExists ${JSON.stringify([challengeId, roleId, toInteger(userId)])} result: ${JSON.stringify(result)}`)
+  // logger.debug(`resourceExists ${JSON.stringify([challengeId, roleId, toInteger(userId)])} result: ${JSON.stringify(result)}`)
   if (result && result.length > 0) {
     return result[0].num > 0
   }
