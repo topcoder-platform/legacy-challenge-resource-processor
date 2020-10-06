@@ -39,30 +39,10 @@ INSERT INTO resource
 VALUES
   (?, ?, null, ?, ?, ?, CURRENT, ?, CURRENT)`
 
-const QUERY_INSERT_REVIEWER_RESOURCE_WITH_ROLE = `
-  INSERT INTO resource
-    ( resource_id,
-      resource_role_id,
-      project_phase_id,
-      project_id,
-      user_id,
-      project_phase_id,
-      create_user, 
-      create_date, 
-      modify_user,
-      modify_date)
-  VALUES
-    (?, ?, null, ?, ?, ?, ?, CURRENT, ?, CURRENT)`
-
 async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, reviewerPhaseId) {
   const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
-  // logger.debug(`Reg Date ${regDate}`)
   logger.debug(`persistResourceWithRoleId - reviewerPhaseId: ${reviewerPhaseId}`)
-  if (reviewerPhaseId !== null) {
-    await helper.executeSQLonDB(QUERY_INSERT_REVIEWER_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, reviewerPhaseId, userId, userId, userId])
-  } else {
-    await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, challengeId, userId, userId, userId])
-  }
+  await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, reviewerPhaseId, challengeId, userId, userId, userId])
 
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
