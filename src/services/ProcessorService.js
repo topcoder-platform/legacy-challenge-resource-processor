@@ -165,7 +165,7 @@ async function deleteChallengeResource (message) {
   try {
     await _updateChallengeResource(message, true)
   } catch (e) {
-    logger.info(`Failed to find and delete the resource: ${JSON.stringify(message)}`)
+    logger.info(`Failed to find and delete the resource: ${JSON.stringify(message)} Error: ${JSON.stringify(e)}`)
   }
 
   logger.info(`Successfully processed delete challenge resource message : ${JSON.stringify(message)}`)
