@@ -1,5 +1,6 @@
 const helper = require('../common/helper')
 const logger = require('../common/logger')
+const { toInteger } = require('lodash')
 const Constants = require('../constants')
 
 const QUERY_CHECK_RESOURCE_EXISTS = 'SELECT COUNT(*) as num FROM resource WHERE project_id = %d AND resource_role_id = %d AND user_id = %d'
@@ -12,8 +13,8 @@ const QUERY_CHECK_RESOURCE_EXISTS = 'SELECT COUNT(*) as num FROM resource WHERE 
  * @return the result
  */
 async function resourceExists (challengeId, roleId, userId) {
-  const result = helper.queryDataFromDB(QUERY_CHECK_RESOURCE_EXISTS, [challengeId, roleId, userId])
-  logger.debug(`resourceExists ${JSON.stringify([challengeId, roleId, userId])} result: ${JSON.stringify(result)}`)
+  const result = helper.queryDataFromDB(QUERY_CHECK_RESOURCE_EXISTS, [challengeId, roleId, toInteger(userId)])
+  logger.debug(`resourceExists ${JSON.stringify([challengeId, roleId, toInteger(userId)])} result: ${JSON.stringify(result)}`)
   if (result && result.length > 0) {
     return result[0].num > 0
   }
@@ -92,6 +93,7 @@ const QUERY_DELETE_RESOURCE = 'DELETE FROM resource WHERE resource_id = ?'
  * @param operatorId operator id
  */
 async function removeResource (resource) {
+  logger.debug(`removeResource ${JSON.stringify(resource)}`)
   await helper.executeSQLonDB(QUERY_DELETE_RES_INFO, [resource.resourceid])
   await helper.executeSQLonDB(QUERY_DELETE_SUBMISSION, [resource.resourceid])
   await helper.executeSQLonDB(QUERY_DELETE_RESOURCE, [resource.resourceid])

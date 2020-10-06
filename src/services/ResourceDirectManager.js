@@ -3,6 +3,7 @@ const RegistrationDAO = require('../dao/RegistrationDAO')
 const SequenceDAO = require('../dao/SequenceDAO')
 const logger = require('../common/logger')
 const config = require('config')
+const { find, toString } = require('lodash')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
@@ -51,38 +52,23 @@ async function assignRole (legacyChallengeId, roleId, userId, handle) {
 
 /**
  * Assign the given roleId to the specified userId in the given project.
- * @param operatorId
  * @param legacyChallengeId
  *            the id of the contest/challenge.
  * @param roleId
  *            the id of the role.
  * @param userId
  *            the id of the user.
- * @param phase
- *            the <code>Phase</code> associated with the resource.
- * @param addNotification
- *            whether to add notification.
- * @param addForumWatch
- *            whether to add forum watch.
- * @param isStudio
- *            whether assign to studio contest.
- * @param checkTerm
- *            whether to check terms and conditions.
  */
 async function removeRole (legacyChallengeId, roleId, userId) {
-  logger.debug('Checking that User ' + userId + ' has role ' + roleId + ' for the project ' + legacyChallengeId)
-  let found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
-  if (!found) {
+  const resources = await ProjectServices.searchResources(legacyChallengeId, roleId)
+  const existingResource = find(resources, r => toString(r.userid) === toString(userId))
+
+  if (!existingResource) {
     logger.error('removeRole Resource Not Found')
     throw new Error('User ' + userId + ' does not have role ' + roleId + ' for the project ' + legacyChallengeId)
   }
-  const resources = await ProjectServices.searchResources(legacyChallengeId, roleId)
-  for (const resource of resources) {
-    logger.debug(`removeRole - Loop ${JSON.stringify(resource)}`)
-    if (+resource.userid === userId) {
-      await ProjectServices.removeResource(resource)
-    }
-  }
+
+  await ProjectServices.removeResource(existingResource)
 }
 
 /**
