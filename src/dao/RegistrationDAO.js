@@ -21,7 +21,7 @@ const QUERY_GET_REVIEW_PHASE_FOR_CHALLENGE = `
 
 async function getPhaseIdForPhaseTypeId (legacyChallengeId, phaseTypeId) {
   const phaseResult = await helper.queryDataFromDB(QUERY_GET_REVIEW_PHASE_FOR_CHALLENGE, [legacyChallengeId, phaseTypeId])
-  logger.debug(`Get Phase ID - Phase result: ${JSON.stringify(phaseResult)}`)
+  // logger.debug(`Get Phase ID - Phase result: ${JSON.stringify(phaseResult)}`)
   return phaseResult[0].phaseid || null
 }
 
@@ -41,7 +41,7 @@ VALUES
 
 async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, projectPhaseId) {
   const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
-  logger.debug(`persistResourceWithRoleId - projectPhaseId: ${projectPhaseId}`)
+  logger.debug(`persistResourceWithRoleId - projectPhaseId: ${projectPhaseId} - ${JSON.stringify([resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])}`)
   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])
 
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)

@@ -67,6 +67,7 @@ async function _updateChallengeResource (message, isDelete) {
   try {
     logger.debug(`Calling ${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`)
     resourceRoleResponse = await helper.getRequest(`${config.RESOURCE_ROLE_API_URL}?id=${_.get(message, 'payload.roleId')}`, m2mToken)
+    logger.debug(`resourceRoleResponse ${JSON.stringify(resourceRoleResponse)}`)
   } catch (err) {
     throw new Error(`Resource Role ${_.get(message, 'payload.roleId')} not found. ${JSON.stringify(err)}`)
   }
@@ -96,10 +97,10 @@ async function _updateChallengeResource (message, isDelete) {
   }
   if (isTask || !forumId || forumId <= 0) {
     if (isDelete) {
-      logger.debug(`Deleteing Challenge Resource ${userId} from challenge ${legacyChallengeID}`)
+      logger.debug(`Deleteing Challenge Resource ${userId} from challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
-      logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID}`)
+      logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
       await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle)
     }
     // logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)

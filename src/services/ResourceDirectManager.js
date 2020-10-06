@@ -34,12 +34,12 @@ async function assignRole (legacyChallengeId, roleId, userId, handle) {
       throw new Error('Invalid role id ' + roleId)
     }
 
-    let reviewPhaseId = null
+    let projectPhaseId = null
     if (roleId === config.LEGACY_REVIEWER_ROLE_ID) {
-      reviewPhaseId = await RegistrationDAO.getPhaseIdForPhaseTypeId(legacyChallengeId, config.LEGACY_REVIEW_PHASE_ID)
+      projectPhaseId = await RegistrationDAO.getPhaseIdForPhaseTypeId(legacyChallengeId, config.LEGACY_REVIEW_PHASE_ID)
     }
     const resourceId = await SequenceDAO.getResourceSeqNextId()
-    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, reviewPhaseId)
+    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId)
 
     // only check notification setting for observer, else always add
     // if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {
