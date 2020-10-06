@@ -16,7 +16,7 @@ phase_id = (SELECT 111 + project_category_id FROM project WHERE project_id = %d)
 `
 
 const QUERY_GET_REVIEW_PHASE_FOR_CHALLENGE = `
-  SELECT pp.phase_id as phaseid FROM project_phase pp WHERE project_id = %d AND pp.phase_type_id = %d;
+  SELECT pp.project_phase_id as phaseid FROM project_phase pp WHERE project_id = %d AND pp.phase_type_id = %d;
 `
 
 async function getPhaseIdForPhaseTypeId (legacyChallengeId, phaseTypeId) {
