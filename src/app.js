@@ -78,7 +78,7 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
     await consumer.commitOffset({ topic, partition, offset: m.offset })
     logger.debug('Successfully processed message')
   } catch (err) {
-    logger.error(err.message)
+    logger.error(`app.js error message: ${err.message}`)
   }
 })
 

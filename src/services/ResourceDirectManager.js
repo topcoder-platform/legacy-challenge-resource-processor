@@ -70,6 +70,7 @@ async function assignRole (legacyChallengeId, roleId, userId, handle) {
  *            whether to check terms and conditions.
  */
 async function removeRole (legacyChallengeId, roleId, userId) {
+  logger.debug('Checking that User ' + userId + ' has role ' + roleId + ' for the project ' + legacyChallengeId)
   let found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   if (!found) {
     throw new Error('User ' + userId + ' does not have role ' + roleId + ' for the project ' + legacyChallengeId)
