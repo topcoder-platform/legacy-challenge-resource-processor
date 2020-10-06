@@ -97,7 +97,7 @@ async function _updateChallengeResource (message, isDelete) {
   }
   if (isTask || !forumId || forumId <= 0) {
     if (isDelete) {
-      logger.debug(`Deleteing Challenge Resource ${userId} from challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
+      logger.debug(`Deleting Challenge Resource ${userId} from challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)

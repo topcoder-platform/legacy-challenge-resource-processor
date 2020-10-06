@@ -1,6 +1,7 @@
 const ProjectServices = require('./ProjectService')
 const RegistrationDAO = require('../dao/RegistrationDAO')
 const SequenceDAO = require('../dao/SequenceDAO')
+const logger = require('../common/logger')
 const config = require('config')
 
 /**
@@ -74,6 +75,7 @@ async function removeRole (legacyChallengeId, roleId, userId) {
     throw new Error('User ' + userId + ' does not have role ' + roleId + ' for the project ' + legacyChallengeId)
   }
   const resources = await ProjectServices.searchResources(legacyChallengeId, roleId)
+  logger.debug(`removeRole Resources Found ${JSON.stringify(resources)}`)
   for (const resource of resources) {
     if (+resource.userid === userId) {
       await ProjectServices.removeResource(resource)
