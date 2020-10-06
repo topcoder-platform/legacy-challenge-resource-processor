@@ -73,11 +73,12 @@ async function removeRole (legacyChallengeId, roleId, userId) {
   logger.debug('Checking that User ' + userId + ' has role ' + roleId + ' for the project ' + legacyChallengeId)
   let found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   if (!found) {
+    logger.error('removeRole Resource Not Found')
     throw new Error('User ' + userId + ' does not have role ' + roleId + ' for the project ' + legacyChallengeId)
   }
   const resources = await ProjectServices.searchResources(legacyChallengeId, roleId)
-  logger.debug(`removeRole Resources Found ${JSON.stringify(resources)}`)
   for (const resource of resources) {
+    logger.debug(`removeRole - Loop ${JSON.stringify(resource)}`)
     if (+resource.userid === userId) {
       await ProjectServices.removeResource(resource)
     }

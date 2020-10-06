@@ -1,4 +1,5 @@
 const helper = require('../common/helper')
+const logger = require('../common/logger')
 const Constants = require('../constants')
 
 const QUERY_CHECK_RESOURCE_EXISTS = 'SELECT COUNT(*) as num FROM resource WHERE project_id = %d AND resource_role_id = %d AND user_id = %d'
@@ -12,6 +13,7 @@ const QUERY_CHECK_RESOURCE_EXISTS = 'SELECT COUNT(*) as num FROM resource WHERE 
  */
 async function resourceExists (challengeId, roleId, userId) {
   const result = helper.queryDataFromDB(QUERY_CHECK_RESOURCE_EXISTS, [challengeId, roleId, userId])
+  logger.debug(`resourceExists ${JSON.stringify([challengeId, roleId, userId])} result: ${JSON.stringify(result)}`)
   if (result && result.length > 0) {
     return result[0].num > 0
   }
