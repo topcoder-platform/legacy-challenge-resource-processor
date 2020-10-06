@@ -37,12 +37,12 @@ INSERT INTO resource
     modify_user,
     modify_date)
 VALUES
-  (?, ?, null, ?, ?, ?, CURRENT, ?, CURRENT)`
+  (?, ?, ?, ?, ?, ?, CURRENT, ?, CURRENT)`
 
-async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, reviewerPhaseId) {
+async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, projectPhaseId) {
   const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
-  logger.debug(`persistResourceWithRoleId - reviewerPhaseId: ${reviewerPhaseId}`)
-  await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, reviewerPhaseId, challengeId, userId, userId, userId])
+  logger.debug(`persistResourceWithRoleId - projectPhaseId: ${projectPhaseId}`)
+  await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])
 
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
