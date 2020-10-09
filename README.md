@@ -35,9 +35,10 @@ The following parameters can be set in config files or in env variables:
 - DISABLE_LOGGING: whether to disable logging, default is false
 - LOG_LEVEL: the log level; default value: 'debug'
 - KAFKA_URL: comma separated Kafka hosts for consumer to listen; default value: 'localhost:9092'
-- KAFKA_GROUP_ID: Kafka consumer group id; default value: 'legacy-resources-processor-group'
+- KAFKA_GROUP_ID: Kafka consumer group id; default value: 'legacy-challenge-resource-processor-group'
 - KAFKA_CLIENT_CERT: Kafka connection certificate, optional; default value is undefined;
 - KAFKA_ERROR_TOPIC: The kafka error topic.
+- MAX_RETRIES: the number of max retries; default value: 3
 - RETRY_TIMEOUT: The timeout to retry processing the same message
 - BUSAPI_URL: Bus API URL
 
@@ -55,6 +56,8 @@ if not provided, then SSL connection is not used, direct insecure connection is 
 - TOKEN_CACHE_TIME: Cache time of M2M token, optional
 - AUTH0_CLIENT_ID: Auth0 client id for M2M token
 - AUTH0_CLIENT_SECRET: Auth0 client secret for M2M token
+- IS_CREATE_FORUM: Should create forum resource or not
+- CHALLENGE_ORIGINATOR: originator from challenge service
 
 Also note that there is a `/health` endpoint that checks for the health of the app. This sets up an expressjs server and listens on the environment variable `PORT`. It's not part of the configuration file and needs to be passed as an environment variable
 

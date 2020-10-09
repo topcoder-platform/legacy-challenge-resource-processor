@@ -8,7 +8,7 @@ const { isNil, get } = require('lodash')
 const Kafka = require('no-kafka')
 const healthcheck = require('topcoder-healthcheck-dropin')
 const logger = require('./common/logger')
-// const helper = require('./common/helper')
+const helper = require('./common/helper')
 const { getKafkaOptions } = require('./common/utils')
 const ProcessorService = require('./services/ProcessorService')
 
@@ -58,21 +58,27 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
       if (isNil(challengeId)) {
         throw new Error(`Challenge ID ${challengeId} is null, will not queue to retry`)
       } else {
-        logger.error('Legacy Challenge does not exist yet. Not Posting to Bus API for now')
-        logger.error(`Message JSON: ${JSON.stringify(messageJSON)}`)
-        // await new Promise((resolve) => {
-        //   setTimeout(async () => {
-        //     await helper.postBusEvent(topic, messageJSON.payload)
-        //     resolve()
-        //   }, config.RETRY_TIMEOUT)
-        // })
+        const retryCountIdentifier = `${config.KAFKA_GROUP_ID.split(' ').join('_')}_retry_count`
+        let currentRetryCount = parseInt(get(messageJSON.payload, retryCountIdentifier, 1), 10)
+        if (currentRetryCount <= config.MAX_RETRIES) {
+          logger.info(`Challenge does not exist yet. Will post the same message back to the bus API and retry in ${currentRetryCount * (config.RETRY_TIMEOUT / 1000)} seconds`)
+          await new Promise((resolve) => {
+            setTimeout(async () => {
+              currentRetryCount += 1
+              await helper.postBusEvent(topic, { ...messageJSON.payload, [retryCountIdentifier]: currentRetryCount })
+              resolve()
+            }, config.RETRY_TIMEOUT * currentRetryCount)
+          })
+        } else {
+          logger.error(`Failed to process message after ${config.MAX_RETRIES} retries. Aborting...`)
+        }
       }
     }
     // only commit if no errors
     await consumer.commitOffset({ topic, partition, offset: m.offset })
-    logger.debug('Successfully processed message')
+    // logger.debug('Successfully processed message')
   } catch (err) {
-    logger.error(err.message)
+    logger.error(`app.js error message: ${err.message}`)
   }
 })
 

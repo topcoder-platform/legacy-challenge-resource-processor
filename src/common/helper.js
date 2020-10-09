@@ -2,16 +2,44 @@
  * Contains generic helper methods
  */
 
+global.Promise = require('bluebird')
 const _ = require('lodash')
 const config = require('config')
+const ifxnjs = require('ifxnjs')
+const logger = require('./logger')
+const util = require('util')
 const request = require('superagent')
 const busApi = require('topcoder-bus-api-wrapper')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 
+const Pool = ifxnjs.Pool
+const pool = Promise.promisifyAll(new Pool())
+pool.setMaxPoolSize(config.get('INFORMIX.POOL_MAX_SIZE'))
 
 // Bus API Client
 let busApiClient
+
+/**
+ * Get Informix connection using the configured parameters
+ * @return {Object} Informix connection
+ */
+async function getInformixConnection (database) {
+  if (!database) {
+    database = config.get('INFORMIX.DATABASE')
+  }
+  // construct the connection string from the configuration parameters.
+  const connectionString = 'SERVER=' + config.get('INFORMIX.SERVER') +
+                           ';DATABASE=' + database +
+                           ';HOST=' + config.get('INFORMIX.HOST') +
+                           ';Protocol=' + config.get('INFORMIX.PROTOCOL') +
+                           ';SERVICE=' + config.get('INFORMIX.PORT') +
+                           ';DB_LOCALE=' + config.get('INFORMIX.DB_LOCALE') +
+                           ';UID=' + config.get('INFORMIX.USER') +
+                           ';PWD=' + config.get('INFORMIX.PASSWORD')
+  const conn = await pool.openAsync(connectionString)
+  return Promise.promisifyAll(conn)
+}
 
 /**
  * Get M2M token
@@ -99,10 +127,75 @@ async function postBusEvent (topic, payload) {
   })
 }
 
+/**
+ * Prepare Informix statement
+ * @param {Object} connection the Informix connection
+ * @param {String} sql the sql
+ * @return {Object} Informix statement
+ */
+async function prepare (connection, sql) {
+  // logger.debug(`Preparing SQL ${sql}`)
+  const stmt = await connection.prepareAsync(sql)
+  return Promise.promisifyAll(stmt)
+}
+
+async function ESFeederServiceClient () {
+}
+
+/**
+ * Query data from database
+ * @param sql
+ * @param params
+ * @returns {Promise<null>}
+ */
+async function queryDataFromDB (sql, params) {
+  let result = null
+  const connection = await getInformixConnection()
+  try {
+    await connection.beginTransactionAsync()
+    result = await connection.queryAsync(util.format(sql, ...params))
+    await connection.commitTransactionAsync()
+  } catch (e) {
+    logger.error(`Error in 'queryDataFromDB' ${e}, rolling back transaction`)
+    await connection.rollbackTransactionAsync()
+    throw e
+  } finally {
+    await connection.closeAsync()
+  }
+  return result
+}
+
+/**
+ * Execute sql on database
+ * @param sql
+ * @param params
+ */
+async function executeSQLonDB (sql, params) {
+  const connection = await getInformixConnection()
+  // logger.debug(`Executing SQL: ${sql} ${JSON.stringify(params)}`)
+  try {
+    await connection.beginTransactionAsync()
+    const query = await prepare(connection, sql)
+    await query.executeAsync(params)
+    await connection.commitTransactionAsync()
+  } catch (e) {
+    logger.error(`Error in 'executeSQLonDB' ${e}, rolling back transaction`)
+    await connection.rollbackTransactionAsync()
+    throw e
+  } finally {
+    await connection.closeAsync()
+  }
+}
+
 module.exports = {
+  getInformixConnection,
   getM2Mtoken,
   getRequest,
   postRequest,
   deleteRequest,
-  postBusEvent
+  postBusEvent,
+  prepare,
+  ESFeederServiceClient,
+  queryDataFromDB,
+  executeSQLonDB
 }
