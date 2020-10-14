@@ -1,11 +1,14 @@
 const helper = require('../common/helper')
 const moment = require('moment')
-// const logger = require('../common/logger')
+const logger = require('../common/logger')
 
 const RESOURCE_TYPE_EXT_REF_ID = 1
 const RESOURCE_TYPE_HANDLE_ID = 2
 const RESOURCE_TYPE_REG_DATE = 6
 const RESOURCE_TYPE_APPEALS_COMPLETED = 13
+
+const RESOURCE_TYPE_COPILOT_PAYMENT_ID = 7
+const COPILOT_RESOURCE_ROLE_ID = 14
 
 const QUERY_GET_USER_RELIABILITY = `
 SELECT rating
@@ -39,7 +42,7 @@ INSERT INTO resource
 VALUES
   (?, ?, ?, ?, ?, ?, CURRENT, ?, CURRENT)`
 
-async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, projectPhaseId) {
+async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount) {
   const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
   // logger.debug(`persistResourceWithRoleId - projectPhaseId: ${projectPhaseId} - ${JSON.stringify([resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])}`)
   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])
@@ -48,6 +51,10 @@ async function persistResourceWithRoleId (userId, challengeId, resourceId, roleI
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_REG_DATE, regDate)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_APPEALS_COMPLETED, 'NO')
+  if (roleId === COPILOT_RESOURCE_ROLE_ID) {
+    logger.debug(`Copilot Payment Amount Set on Resource Info Table: ${copilotPaymentAmount}`)
+    await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_COPILOT_PAYMENT_ID, copilotPaymentAmount || 0)
+  }
 }
 
 const QUERY_INSERT_RESOURCE = `

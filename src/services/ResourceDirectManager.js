@@ -14,7 +14,7 @@ const { find, toString } = require('lodash')
  *            the id of the user.
  * @param handle
  */
-async function assignRole (legacyChallengeId, roleId, userId, handle) {
+async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPaymentAmount) {
   let found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   const termChecking = true
   const eligible = true
@@ -41,7 +41,7 @@ async function assignRole (legacyChallengeId, roleId, userId, handle) {
       projectPhaseId = await RegistrationDAO.getPhaseIdForPhaseTypeId(legacyChallengeId, config.LEGACY_REVIEW_PHASE_ID)
     }
     const resourceId = await SequenceDAO.getResourceSeqNextId()
-    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId)
+    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount)
 
     // only check notification setting for observer, else always add
     // if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {
@@ -78,9 +78,10 @@ async function removeRole (legacyChallengeId, roleId, userId) {
  * @param resourceRoleId
  * @param userId
  * @param handle
+ * @param copilotPaymentAmount
  */
-async function addResource (challengeId, resourceRoleId, userId, handle) {
-  await assignRole(challengeId, resourceRoleId, userId, handle)
+async function addResource (challengeId, resourceRoleId, userId, handle, copilotPaymentAmount) {
+  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPaymentAmount)
 }
 
 /**
