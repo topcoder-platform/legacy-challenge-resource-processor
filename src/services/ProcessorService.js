@@ -75,8 +75,11 @@ async function _updateChallengeResource (message, isDelete) {
   const resourceRoleId = resourceRole.legacyId
   const legacyChallengeID = _.get(v5Challenge, 'legacyId')
   const isStudioChallenge = isStudio(v5Challenge.type)
-  const forumId = _.get(v5Challenge, 'legacy.forumId', 0)
+  // const forumId = _.get(v5Challenge, 'legacy.forumId', 0)
   const isTask = _.get(v5Challenge, 'task.isTask', false)
+
+  const prizeSets = _.get(v5Challenge, 'prizeSets')
+  const copilotPaymentAmount = _.get(_.find(prizeSets, p => p.type === config.COPILOT_PAYMENT_TYPE), 'prizes[0].value', null)
 
   const body = {
     roleId: resourceRoleId,
@@ -84,7 +87,7 @@ async function _updateChallengeResource (message, isDelete) {
     isStudio: isStudioChallenge
   }
 
-  let response = null
+  // let response = null
   const resources = await ProjectServices.searchResources(legacyChallengeID, resourceRoleId)
   const existingResource = _.find(resources, r => _.toString(r.userid) === _.toString(userId))
   // if the resource already exists, skip it
@@ -92,33 +95,22 @@ async function _updateChallengeResource (message, isDelete) {
     logger.debug(`Will skip creating resource ${userId} with role ${resourceRoleId} for challenge ${legacyChallengeID}`)
     return
   }
-  if (isTask || !forumId || forumId <= 0) {
+
+  if (resourceRole.id === config.SUBMITTER_ROLE_ID && !isTask) {
+    if (isDelete) {
+      logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
+      await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
+    } else {
+      logger.debug(`v4 Registering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId} - ${JSON.stringify(body)}`)
+      await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}`, {}, m2mToken)
+    }
+  } else {
     if (isDelete) {
       logger.debug(`Deleting Challenge Resource ${userId} from challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
-      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle)
-    }
-    // logger.debug(`Update Challenge Response ${JSON.stringify(response)}`)
-  } else {
-    if (resourceRole.id === config.SUBMITTER_ROLE_ID) {
-      if (isDelete) {
-        logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
-        response = await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
-      } else {
-        logger.debug(`v4 Registering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId} - ${JSON.stringify(body)}`)
-        response = await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}`, {}, m2mToken)
-      }
-    } else {
-      if (isDelete) {
-        logger.debug(`v4 Deleting Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
-        response = await helper.deleteRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
-      } else {
-        logger.debug(`v4 Creating Challenge Resource ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources - ${JSON.stringify(body)}`)
-        response = await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/resources`, body, m2mToken)
-      }
-      logger.debug(`v4 Update Challenge Response ${JSON.stringify(response)}`)
+      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, copilotPaymentAmount)
     }
   }
 }

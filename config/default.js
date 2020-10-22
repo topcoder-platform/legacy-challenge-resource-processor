@@ -58,5 +58,6 @@ module.exports = {
   },
 
   LEGACY_REVIEWER_ROLE_ID: process.env.LEGACY_REVIEWER_ROLE_ID || 4,
-  LEGACY_REVIEW_PHASE_ID: process.env.LEGACY_REVIEW_PHASE_ID || 4
+  LEGACY_REVIEW_PHASE_ID: process.env.LEGACY_REVIEW_PHASE_ID || 4,
+  COPILOT_PAYMENT_TYPE: process.env.COPILOT_PAYMENT_TYPE || 'copilot'
 }
