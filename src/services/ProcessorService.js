@@ -8,6 +8,7 @@ const logger = require('../common/logger')
 const helper = require('../common/helper')
 const ResourceDirectManager = require('./ResourceDirectManager')
 const ProjectServices = require('./ProjectService')
+const notificationService = require('./NotificationService')
 const {isStudio} = require('../common/utils')
 
 /**
@@ -111,6 +112,13 @@ async function _updateChallengeResource (message, isDelete) {
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
       await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, copilotPaymentAmount)
+    }
+  }
+  if (config.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.indexOf(resourceRole.id) === -1) {
+    if (isDelete) {
+      await notificationService.disableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId)
+    } else {
+      await notificationService.enableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId, _.get(v5Challenge, 'updatedBy') || _.get(v5Challenge, 'createdBy'))
     }
   }
 }
