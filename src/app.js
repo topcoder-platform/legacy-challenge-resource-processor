@@ -8,7 +8,6 @@ const { isNil, get } = require('lodash')
 const Kafka = require('no-kafka')
 const healthcheck = require('topcoder-healthcheck-dropin')
 const logger = require('./common/logger')
-const helper = require('./common/helper')
 const { getKafkaOptions } = require('./common/utils')
 const ProcessorService = require('./services/ProcessorService')
 
