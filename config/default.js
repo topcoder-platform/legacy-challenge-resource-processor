@@ -22,8 +22,11 @@ module.exports = {
   KAFKA_CLIENT_CERT_KEY: process.env.KAFKA_CLIENT_CERT_KEY,
 
   SUBMITTER_ROLE_ID: process.env.SUBMITTER_ROLE_ID || '732339e7-8e30-49d7-9198-cccf9451e221',
+  MANAGER_RESOURCE_ROLE_ID: process.env.MANAGER_RESOURCE_ROLE_ID || '0e9c6879-39e4-4eb6-b8df-92407890faf1',
 
   RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS: process.env.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS ? process.env.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.split(',') : ['2a4dc376-a31c-4d00-b173-13934d89e286'],
+
+  PROJECT_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS: process.env.PROJECT_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS ? process.env.PROJECT_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.split(',') : ['manager', 'customer'],
 
   IS_CREATE_FORUM: process.env.IS_CREATE_FORUM || true,
 
@@ -32,6 +35,7 @@ module.exports = {
 
   CHALLENGE_ORIGINATOR: process.env.CHALLENGE_ORIGINATOR || 'app.challenge.service',
 
+  PROJECTS_V5_API_URL: process.env.PROJECTS_V5_API_URL || 'https://api.topcoder-dev.com/v5/projects',
   CHALLENGE_API_V4_URL: process.env.CHALLENGE_API_V4_URL || 'https://api.topcoder-dev.com/v4/challenges',
   CHALLENGE_API_V5_URL: process.env.CHALLENGE_API_V5_URL || 'http://localhost:3001/v5/challenges',
   RESOURCE_ROLE_API_URL: process.env.RESOURCE_ROLE_API_URL || 'http://localhost:3001/v5/resource-roles',

@@ -118,7 +118,19 @@ async function _updateChallengeResource (message, isDelete) {
     if (isDelete) {
       await notificationService.disableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId)
     } else {
-      await notificationService.enableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId, _.get(v5Challenge, 'updatedBy') || _.get(v5Challenge, 'createdBy'))
+      let shouldEnableNotifications = true
+      if (resourceRole.id === config.MANAGER_RESOURCE_ROLE_ID) {
+        // see if notifications should be enabled based on the user's role on the project
+        const v5ProjectRes = await helper.getRequest(`${config.PROJECTS_V5_API_URL}/${v5Challenge.projectId}`, m2mToken)
+        const memberRolesOnV5Project = _.map(_.filter(_.get(v5ProjectRes, 'body.members', []), m => _.toString(m.userId) === _.toString(userId)), r => r.role)
+        if (memberRolesOnV5Project.length > 0 && _.intersection(config.PROJECT_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS, memberRolesOnV5Project).length > 0) {
+          // notifications should not be enabled
+          shouldEnableNotifications = false
+        }
+      }
+      if (shouldEnableNotifications) {
+        await notificationService.enableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId, _.get(v5Challenge, 'updatedBy') || _.get(v5Challenge, 'createdBy'))
+      }
     }
   }
 }
