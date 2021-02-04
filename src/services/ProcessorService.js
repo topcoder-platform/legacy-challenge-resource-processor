@@ -60,6 +60,10 @@ async function _updateChallengeResource (message, isDelete) {
   try {
     const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
     v5Challenge = res.body
+    if (_.get(v5Challenge, 'legacy.pureV5Task')) {
+      logger.debug('Challenge is a pure v5 task. Will skip...')
+      return
+    }
   } catch (err) {
     throw new Error(`Challenge with uuid ${challengeId} does not exist.`)
   }
