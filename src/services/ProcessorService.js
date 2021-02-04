@@ -16,10 +16,15 @@ const {isStudio} = require('../common/utils')
  * @param {Object} message The message containing the challenge resource information
  */
 async function legacyChallengeExistInV4 (legacyId) {
-  const m2mToken = await helper.getM2Mtoken()
-  logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
-  const challenge = await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
-  if (!challenge) throw new Error(`v4 Challenge not found for ${legacyId}`)
+  try {
+    const m2mToken = await helper.getM2Mtoken()
+    logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
+    const challenge = await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
+    if (!challenge) throw new Error(`v4 Challenge not found for ${legacyId}`)
+  } catch (e) {
+    logger.logFullError(e)
+    throw new Error(`v4 Challenge not found for ${legacyId}`)
+  }
 }
 
 /**
