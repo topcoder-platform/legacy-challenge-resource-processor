@@ -19,8 +19,7 @@ async function legacyChallengeExistInV4 (legacyId) {
   try {
     const m2mToken = await helper.getM2Mtoken()
     logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
-    const challenge = await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
-    if (!challenge) throw new Error(`v4 Challenge not found for ${legacyId}`)
+    await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
   } catch (e) {
     logger.logFullError(e)
     throw new Error(`v4 Challenge not found for ${legacyId}`)
