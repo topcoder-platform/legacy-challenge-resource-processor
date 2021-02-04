@@ -15,24 +15,11 @@ const {isStudio} = require('../common/utils')
  * Check if a challenge exists on legacy (v4)
  * @param {Object} message The message containing the challenge resource information
  */
-async function legacyChallengeExist (challengeId) {
-  let exists = true
-  try {
-    const m2mToken = await helper.getM2Mtoken()
-    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
-    const v5Challenge = res.body
-    if (!v5Challenge.legacyId) {
-      exists = false
-      logger.warn(`Challenge ${challengeId} does not have a legacyId. Can't fetch details from V4`)
-    } else {
-      logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`)
-      await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`, m2mToken)
-    }
-  } catch (e) {
-    logger.warn(`error getting legacy challenge ${JSON.stringify(e)}`)
-    exists = false
-  }
-  return exists
+async function legacyChallengeExistInV4 (legacyId) {
+  const m2mToken = await helper.getM2Mtoken()
+  logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
+  const challenge = await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
+  if (!challenge) throw new Error(`v4 Challenge not found for ${legacyId}`)
 }
 
 /**
@@ -58,10 +45,13 @@ async function _updateChallengeResource (message, isDelete) {
       return
     }
   } catch (err) {
-    throw new Error(`Challenge with uuid ${challengeId} does not exist.`)
+    throw new Error(`Challenge with uuid ${challengeId} does not exist in v5 API [GET ${config.CHALLENGE_API_V5_URL}/${challengeId}] - Error: ${JSON.stringify(err)}.`)
   }
 
-  await legacyChallengeExist(challengeId)
+  if (!v5Challenge.legacyId) {
+    throw new Error(`Challenge ${challengeId} has no Legacy ID: ${JSON.stringify(v5Challenge)}`)
+  }
+  await legacyChallengeExistInV4(v5Challenge.legacyId)
 
   let resourceRole = null
   let resourceRoleResponse = null
@@ -182,8 +172,7 @@ deleteChallengeResource.schema = createChallengeResource.schema
 
 module.exports = {
   createChallengeResource,
-  deleteChallengeResource,
-  legacyChallengeExist
+  deleteChallengeResource
 }
 
 // logger.buildService(module.exports)
