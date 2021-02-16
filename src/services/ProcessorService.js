@@ -15,31 +15,15 @@ const {isStudio} = require('../common/utils')
  * Check if a challenge exists on legacy (v4)
  * @param {Object} message The message containing the challenge resource information
  */
-async function legacyChallengeExist (message) {
-  let exists = true
-  const challengeId = _.get(message, 'payload.challengeId')
-  if (_.isNil(challengeId)) {
-    throw new Error(`Challenge ID ${challengeId} is null`)
-  }
+async function legacyChallengeExistInV4 (legacyId) {
   try {
     const m2mToken = await helper.getM2Mtoken()
-    const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
-    // logger.debug(`m2m Token: ${m2mToken}`)
-    // logger.debug(`Getting Challenge from V5 ${config.CHALLENGE_API_V5_URL}/${challengeId}`)
-    // logger.debug(`Response ${JSON.stringify(res.body)}`)
-    const v5Challenge = res.body
-    if (!v5Challenge.legacyId) {
-      exists = false
-      logger.warn(`Challenge ${challengeId} does not have a legacyId. Can't fetch details from V4`)
-    } else {
-      logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`)
-      await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${v5Challenge.legacyId}`, m2mToken)
-    }
+    logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
+    await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
   } catch (e) {
-    logger.warn(`error getting legacy challenge ${JSON.stringify(e)}`)
-    exists = false
+    logger.logFullError(e)
+    throw new Error(`v4 Challenge not found for ${legacyId}`)
   }
-  return exists
 }
 
 /**
@@ -60,9 +44,19 @@ async function _updateChallengeResource (message, isDelete) {
   try {
     const res = await helper.getRequest(`${config.CHALLENGE_API_V5_URL}/${challengeId}`, m2mToken)
     v5Challenge = res.body
+    if (_.get(v5Challenge, 'legacy.pureV5Task')) {
+      logger.debug('Challenge is a pure v5 task. Will skip...')
+      return
+    }
   } catch (err) {
-    throw new Error(`Challenge with uuid ${challengeId} does not exist.`)
+    throw new Error(`Challenge with uuid ${challengeId} does not exist in v5 API [GET ${config.CHALLENGE_API_V5_URL}/${challengeId}] - Error: ${JSON.stringify(err)}.`)
   }
+
+  if (!v5Challenge.legacyId) {
+    throw new Error(`Challenge ${challengeId} has no Legacy ID: ${JSON.stringify(v5Challenge)}`)
+  }
+  await legacyChallengeExistInV4(v5Challenge.legacyId)
+
   let resourceRole = null
   let resourceRoleResponse = null
   try {
@@ -118,7 +112,19 @@ async function _updateChallengeResource (message, isDelete) {
     if (isDelete) {
       await notificationService.disableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId)
     } else {
-      await notificationService.enableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId, _.get(v5Challenge, 'updatedBy') || _.get(v5Challenge, 'createdBy'))
+      let shouldEnableNotifications = true
+      if (resourceRole.id === config.MANAGER_RESOURCE_ROLE_ID) {
+        // see if notifications should be enabled based on the user's role on the project
+        const v5ProjectRes = await helper.getRequest(`${config.PROJECTS_V5_API_URL}/${v5Challenge.projectId}`, m2mToken)
+        const memberRolesOnV5Project = _.map(_.filter(_.get(v5ProjectRes, 'body.members', []), m => _.toString(m.userId) === _.toString(userId)), r => r.role)
+        if (memberRolesOnV5Project.length > 0 && _.intersection(config.PROJECT_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS, memberRolesOnV5Project).length > 0) {
+          // notifications should not be enabled
+          shouldEnableNotifications = false
+        }
+      }
+      if (shouldEnableNotifications) {
+        await notificationService.enableTimelineNotifications(_.get(v5Challenge, 'legacyId'), userId, _.get(v5Challenge, 'updatedBy') || _.get(v5Challenge, 'createdBy'))
+      }
     }
   }
 }
@@ -170,8 +176,7 @@ deleteChallengeResource.schema = createChallengeResource.schema
 
 module.exports = {
   createChallengeResource,
-  deleteChallengeResource,
-  legacyChallengeExist
+  deleteChallengeResource
 }
 
 // logger.buildService(module.exports)
