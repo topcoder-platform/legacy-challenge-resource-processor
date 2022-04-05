@@ -276,14 +276,14 @@ left outer join (
         on a.country_code=c.country_code
     )
     on uax.address_id=a.address_id 
-    and c.country_name in ( "Iran", "North Korea", "Cuba", "Sudan", "Syria" )
+    and c.country_name in ( "Iran", "North Korea", "Cuba", "Sudan", "Syria", "Belarus", "Russia", "Russian Federation" )
 ) on uax.user_id = %d
 left outer join (
     informixoltp:coder coder join informixoltp:country country
     on (
         coder.comp_country_code=country.country_code OR
         coder.home_country_code=country.country_code
-  ) and country.country_name in ( "Iran", "North Korea", "Cuba", "Sudan", "Syria" )
+  ) and country.country_name in ( "Iran", "North Korea", "Cuba", "Sudan", "Syria", "Belarus", "Russia", "Russian Federation" )
 ) on coder.coder_id = %d
 left outer join informixoltp:coder coder2 on coder2.coder_id = %d
 left join (
