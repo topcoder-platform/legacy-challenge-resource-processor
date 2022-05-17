@@ -93,8 +93,10 @@ async function _updateChallengeResource (message, isDelete) {
 
   if (resourceRole.id === config.SUBMITTER_ROLE_ID && !isTask) {
     // force sync v4 elasticsearch service
+    logger.debug(`Start v4 challenge reindexing to the elasticsearch service`)
     await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'));
     await new Promise(setTimeout(resolve, 2000));
+    logger.debug(`End v4 challenge reindexing to the elasticsearch service`)
     if (isDelete) {
       logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
       await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
