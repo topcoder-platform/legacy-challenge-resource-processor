@@ -188,7 +188,7 @@ async function executeSQLonDB (sql, params) {
 }
 
 async function forceV4ESFeeder (legacyId) {
-  const token = await getM2MToken()
+  const token = await getM2Mtoken()
   const body = {
     param: {
       challengeIds: [legacyId]
