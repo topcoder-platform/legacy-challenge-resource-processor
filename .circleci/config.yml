@@ -70,7 +70,6 @@ workflows:
             branches:
               only:
                 - develop
-                - fix-legacy-sync
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.
