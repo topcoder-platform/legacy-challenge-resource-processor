@@ -44,7 +44,7 @@ VALUES
 
 async function persistResourceWithRoleId (userId, challengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount) {
   const regDate = moment().format('MM[.]DD[.]YYYY h:mm A')
-  // logger.debug(`persistResourceWithRoleId - projectPhaseId: ${projectPhaseId} - ${JSON.stringify([resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])}`)
+  logger.debug(`persistResourceWithRoleId - projectPhaseId: ${projectPhaseId} - ${JSON.stringify([resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])}`)
   await helper.executeSQLonDB(QUERY_INSERT_RESOURCE_WITH_ROLE, [resourceId, roleId, projectPhaseId, challengeId, userId, userId, userId])
 
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_EXT_REF_ID, userId)

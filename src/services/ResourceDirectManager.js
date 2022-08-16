@@ -46,7 +46,10 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount)
 
     if (isReviewerRole(roleId) && reviewerPaymentAmount != null) {
+      logger.info('Add reviewer payment.')
       await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPaymentAmount, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID)
+    } else {
+      logger.info(`Not a reviewer role ${roleId}.`)
     }
 
     // only check notification setting for observer, else always add

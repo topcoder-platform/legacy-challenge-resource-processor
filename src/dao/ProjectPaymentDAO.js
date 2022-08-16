@@ -28,8 +28,10 @@ DELETE FROM project_payment WHERE resource_id = ?
 `
 
 async function persistReviewerPayment (userId, resourceId, amount, projectPaymentTypeId) {
+  logger.info(`Persist reviewer payment. userId: ${userId}, resourceId: ${resourceId}, amount: ${amount}, projectPaymentTypeId: ${projectPaymentTypeId}`)
   const connection = await helper.getInformixConnection()
   try {
+    logger.info('Open connection.')
     await connection.beginTransactionAsync()
     const result = await connection.queryAsync(QUERY_PROJECT_PAYMENT_MAX_ID)
     const projectPaymentId = _.get(result, '[0].id', null)
