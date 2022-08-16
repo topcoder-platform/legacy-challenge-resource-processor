@@ -19,6 +19,12 @@ const sampleChallenge = {
       'value': 'value1'
     }
   ],
+  'metadata': [
+    {
+      'name': 'reviewerPrize',
+      'value': '5'
+    }
+  ],
   'created': '2019-03-02T14:35:53.948Z',
   'createdBy': 'Copilot1',
   'updated': '2019-03-02T14:35:53.948Z',
