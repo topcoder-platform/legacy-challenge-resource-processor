@@ -10,7 +10,7 @@ const QUERY_PROJECT_PAYMENT_MAX_ID = `
 // Note that project_payment_id is not a sequence, it is max(project_payment_id) + 1 - unlike other similar tables where it is a sequence
 const QUERY_INSERT_PROJECT_PAYMENT = `
 INSERT INTO project_payment
-  ( resource_id
+  ( resource_id,
     amount,
     project_payment_type_id,
     create_user,
