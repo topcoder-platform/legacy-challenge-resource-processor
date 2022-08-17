@@ -198,7 +198,7 @@ async function forceV4ESFeeder (legacyId) {
 }
 
 function isReviewerRole (roleId) {
-  return roleId === config.REVIEWER_ROLE_ID || roleId === config.ITERATIVE_REVIEWER_ROLE_ID
+  return roleId === config.REVIEWER_ROLE_ID || roleId === config.ITERATIVE_REVIEWER_ROLE_ID || roleId == config.LEGACY_REVIEWER_ROLE_ID || roleId == config.LEGACY_REVIEWER_ITERATIVE_ROLE_ID
 }
 
 module.exports = {
