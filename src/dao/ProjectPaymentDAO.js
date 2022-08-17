@@ -39,6 +39,7 @@ async function persistReviewerPayment (userId, resourceId, amount, projectPaymen
     logger.info(`Creating project payment with id ${projectPaymentId}`)
 
     const query = await helper.prepare(connection, QUERY_INSERT_PROJECT_PAYMENT)
+    logger.info('Using parameters: ', [resourceId, amount, projectPaymentTypeId, userId, userId, projectPaymentId])
     await query.executeAsync([resourceId, amount, projectPaymentTypeId, userId, userId, projectPaymentId])
 
     logger.info(`Project payment with id ${projectPaymentId} has been created`)
