@@ -76,6 +76,9 @@ async function _updateChallengeResource (message, isDelete) {
   const prizeSets = _.get(v5Challenge, 'prizeSets')
   const copilotPaymentAmount = _.get(_.find(prizeSets, p => p.type === config.COPILOT_PAYMENT_TYPE), 'prizes[0].value', null)
 
+  const metadata = _.get(v5Challenge, 'metadata', [])
+  const reviewerPaymentAmount = !helper.isReviewerRole(resourceRoleId) ? null : _.get(_.find(metadata, m => m.name === 'reviewerPrize'), 'value', null)
+
   const body = {
     roleId: resourceRoleId,
     resourceUserId: userId,
@@ -94,8 +97,8 @@ async function _updateChallengeResource (message, isDelete) {
   if (resourceRole.id === config.SUBMITTER_ROLE_ID && !isTask) {
     // force sync v4 elasticsearch service
     logger.debug(`Start v4 challenge reindexing to the elasticsearch service`)
-    await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'));
-    await new Promise(resolve => setTimeout(resolve, config.INDEX_CHALLENGE_TIMEOUT * 1000));
+    await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'))
+    await new Promise(resolve => setTimeout(resolve, config.INDEX_CHALLENGE_TIMEOUT * 1000))
     logger.debug(`End v4 challenge reindexing to the elasticsearch service`)
     if (isDelete) {
       logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
@@ -110,7 +113,7 @@ async function _updateChallengeResource (message, isDelete) {
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
-      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, copilotPaymentAmount)
+      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount)
     }
   }
   if (config.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.indexOf(resourceRole.id) === -1) {

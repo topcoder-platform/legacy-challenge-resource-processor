@@ -197,6 +197,10 @@ async function forceV4ESFeeder (legacyId) {
   await request.put(`${config.V4_ES_FEEDER_API_URL}`).send(body).set({ Authorization: `Bearer ${token}` })
 }
 
+function isReviewerRole (roleId) {
+  return roleId === config.REVIEWER_ROLE_ID || roleId === config.ITERATIVE_REVIEWER_ROLE_ID || roleId == config.LEGACY_REVIEWER_ROLE_ID || roleId == config.LEGACY_REVIEWER_ITERATIVE_ROLE_ID
+}
+
 module.exports = {
   getInformixConnection,
   getM2Mtoken,
@@ -208,5 +212,6 @@ module.exports = {
   ESFeederServiceClient,
   queryDataFromDB,
   executeSQLonDB,
-  forceV4ESFeeder
+  forceV4ESFeeder,
+  isReviewerRole
 }

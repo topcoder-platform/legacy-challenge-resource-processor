@@ -1,9 +1,11 @@
 const ProjectServices = require('./ProjectService')
 const RegistrationDAO = require('../dao/RegistrationDAO')
 const SequenceDAO = require('../dao/SequenceDAO')
+const ProjectPaymentDAO = require('../dao/ProjectPaymentDAO')
 const logger = require('../common/logger')
 const config = require('config')
 const { find, toString } = require('lodash')
+const { isReviewerRole } = require('../common/helper')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
@@ -14,7 +16,7 @@ const { find, toString } = require('lodash')
  *            the id of the user.
  * @param handle
  */
-async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPaymentAmount) {
+async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount) {
   let found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   const termChecking = true
   const eligible = true
@@ -43,6 +45,13 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     const resourceId = await SequenceDAO.getResourceSeqNextId()
     await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount)
 
+    if (isReviewerRole(roleId) && reviewerPaymentAmount != null) {
+      logger.info('Add reviewer payment.')
+      await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPaymentAmount, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID)
+    } else {
+      logger.info(`Not a reviewer role ${roleId} or reviewerPaymentAmount:${reviewerPaymentAmount} is null`)
+    }
+
     // only check notification setting for observer, else always add
     // if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {
     //   await ProjectServices.addNotifications(contestId, userId, Constants.TIMELINE_NOTIFICATION_ID, operatorId)
@@ -68,6 +77,10 @@ async function removeRole (legacyChallengeId, roleId, userId) {
     throw new Error('User ' + userId + ' does not have role ' + roleId + ' for the project ' + legacyChallengeId)
   }
 
+  if (isReviewerRole(roleId)) {
+    logger.info('Remove reviewer payment first.')
+    await ProjectPaymentDAO.removeReviewerPayment(existingResource.resourceid)
+  }
   await ProjectServices.removeResource(existingResource)
 }
 
@@ -80,8 +93,8 @@ async function removeRole (legacyChallengeId, roleId, userId) {
  * @param handle
  * @param copilotPaymentAmount
  */
-async function addResource (challengeId, resourceRoleId, userId, handle, copilotPaymentAmount) {
-  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPaymentAmount)
+async function addResource (challengeId, resourceRoleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount) {
+  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount)
 }
 
 /**
