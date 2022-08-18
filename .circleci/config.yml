@@ -70,6 +70,7 @@ workflows:
             branches:
               only:
                 - develop
+                - feat/reviewer-payment
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.
