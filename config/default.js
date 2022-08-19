@@ -32,6 +32,7 @@ module.exports = {
 
   IS_CREATE_FORUM: process.env.IS_CREATE_FORUM || true,
 
+  UPDATE_CHALLENGE_TOPIC: process.env.UPDATE_CHALLENGE_TOPIC || 'challenge.notification.update',
   CREATE_CHALLENGE_RESOURCE_TOPIC: process.env.CREATE_CHALLENGE_RESOURCE_TOPIC || 'challenge.action.resource.create',
   DELETE_CHALLENGE_RESOURCE_TOPIC: process.env.DELETE_CHALLENGE_RESOURCE_TOPIC || 'challenge.action.resource.delete',
 
@@ -41,6 +42,7 @@ module.exports = {
   CHALLENGE_API_V4_URL: process.env.CHALLENGE_API_V4_URL || 'https://api.topcoder-dev.com/v4/challenges',
   CHALLENGE_API_V5_URL: process.env.CHALLENGE_API_V5_URL || 'http://localhost:3001/v5/challenges',
   RESOURCE_ROLE_API_URL: process.env.RESOURCE_ROLE_API_URL || 'http://localhost:3001/v5/resource-roles',
+  MEMBER_API_V5_URL: process.env.MEMBER_API_V5_URL || 'https://api.topcoder-dev.com/v5/members',
 
   V4_ES_FEEDER_API_URL: process.env.V4_ES_FEEDER_API_URL || 'https://api.topcoder-dev.com/v4/esfeeder/challenges',
   INDEX_CHALLENGE_TIMEOUT: process.env.INDEX_CHALLENGE_TIMEOUT || 2,

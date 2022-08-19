@@ -17,7 +17,7 @@ const { isReviewerRole } = require('../common/helper')
  * @param handle
  */
 async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount) {
-  let found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
+  const found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   const termChecking = true
   const eligible = true
   if (found) {

@@ -163,7 +163,7 @@ describe('Legacy resources processor e2e Tests', () => {
 
   it('Should setup healthcheck with check on kafka connection', async () => {
     const healthcheckEndpoint = `http://localhost:${process.env.PORT || 3000}/health`
-    let result = await request.get(healthcheckEndpoint)
+    const result = await request.get(healthcheckEndpoint)
     should.equal(result.status, 200)
     should.deepEqual(result.body, { checksRun: 1 })
     debugLogs.should.match(/connected=true/)
@@ -195,13 +195,13 @@ describe('Legacy resources processor e2e Tests', () => {
   for (const testMethod of Object.keys(testMethods)) {
     const { testMessage, requiredFields, integerFields, stringFields } = testMethods[testMethod]
     it(`test ${testMethod} message - invalid parameters, invalid timestamp`, async () => {
-      let message = _.cloneDeep(testMessage)
+      const message = _.cloneDeep(testMessage)
       message.timestamp = 'invalid'
       await sendMessage(message)
       await waitJob()
 
       errorLogs.should.not.be.empty()
-      assertErrorLogs(`"timestamp" must be a number of milliseconds or valid date string`)
+      assertErrorLogs('"timestamp" must be a number of milliseconds or valid date string')
     })
 
     for (const requiredField of requiredFields.filter(r => { return r !== 'topic' })) {
@@ -219,7 +219,7 @@ describe('Legacy resources processor e2e Tests', () => {
 
     for (const stringField of stringFields.filter(r => { return r !== 'topic' })) {
       it(`test ${testMethod} message - invalid parameters, invalid string type field ${stringField}`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, stringField, 111)
 
         await sendMessage(message)
@@ -230,7 +230,7 @@ describe('Legacy resources processor e2e Tests', () => {
 
     for (const integerField of integerFields) {
       it(`test ${testMethod} message - invalid parameters, invalid integer type field ${integerField}(wrong number)`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, integerField, 'string')
 
         await sendMessage(message)
@@ -238,7 +238,7 @@ describe('Legacy resources processor e2e Tests', () => {
         assertErrorLogs(`"${_.last(integerField.split('.'))}" must be a number`)
       })
       it(`test ${testMethod} message - invalid parameters, invalid integer type field ${integerField}(wrong integer)`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, integerField, 1.1)
 
         await sendMessage(message)
@@ -246,7 +246,7 @@ describe('Legacy resources processor e2e Tests', () => {
         assertErrorLogs(`"${_.last(integerField.split('.'))}" must be an integer`)
       })
       it(`test ${testMethod} message - invalid parameters, invalid integer type field ${integerField}(negative)`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, integerField, -1)
         await sendMessage(message)
         await waitJob()
@@ -255,7 +255,7 @@ describe('Legacy resources processor e2e Tests', () => {
     }
 
     it(`test ${testMethod} message - invalid parameters, non existing challenge uuid`, async () => {
-      let message = _.cloneDeep(testMessage)
+      const message = _.cloneDeep(testMessage)
       _.set(message, 'payload.challengeId', nonExistingChallengeUuid)
 
       await sendMessage(message)
@@ -264,22 +264,22 @@ describe('Legacy resources processor e2e Tests', () => {
     })
   }
 
-  it(`test createChallengeResource message - with valid message`, async () => {
-    await sendMessage(testMethods['createChallengeResource'].testMessage)
+  it('test createChallengeResource message - with valid message', async () => {
+    await sendMessage(testMethods.createChallengeResource.testMessage)
     await waitJob(5 * WAIT_TIME)
 
-    infoLogs[1].should.startWith(`Successfully processed create challenge resource message`)
+    infoLogs[1].should.startWith('Successfully processed create challenge resource message')
     errorLogs.should.be.empty()
   })
 
-  it(`test deleteChallengeResource message - with valid message`, async () => {
+  it('test deleteChallengeResource message - with valid message', async () => {
     // wait some time before sending the delete request to delete the added resource
     // The V4 API is a little bit slow
     await sleep(6 * WAIT_TIME)
-    await sendMessage(testMethods['deleteChallengeResource'].testMessage)
+    await sendMessage(testMethods.deleteChallengeResource.testMessage)
     await waitJob(5 * WAIT_TIME)
 
-    infoLogs[1].should.startWith(`Successfully processed delete challenge resource message`)
+    infoLogs[1].should.startWith('Successfully processed delete challenge resource message')
     errorLogs.should.be.empty()
   })
 })
