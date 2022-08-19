@@ -39,11 +39,14 @@ const dataHandler = async (messageSet, topic, partition) => Promise.each(message
   }
   try {
     switch (topic) {
-      case config.CREATE_CHALLENGE_RESOURCE_TOPIC :
+      case config.CREATE_CHALLENGE_RESOURCE_TOPIC:
         await ProcessorService.createChallengeResource(messageJSON)
         break
       case config.DELETE_CHALLENGE_RESOURCE_TOPIC:
         await ProcessorService.deleteChallengeResource(messageJSON)
+        break
+      case config.UPDATE_CHALLENGE_TOPIC:
+        await ProcessorService.updateResourcePayment(messageJSON)
         break
       default:
         throw new Error(`Invalid topic: ${topic}`)
@@ -69,7 +72,7 @@ function check () {
   return connected
 }
 
-const topics = [config.CREATE_CHALLENGE_RESOURCE_TOPIC, config.DELETE_CHALLENGE_RESOURCE_TOPIC]
+const topics = [config.CREATE_CHALLENGE_RESOURCE_TOPIC, config.DELETE_CHALLENGE_RESOURCE_TOPIC, config.UPDATE_CHALLENGE_TOPIC]
 consumer
   .init([{
     subscriptions: topics,

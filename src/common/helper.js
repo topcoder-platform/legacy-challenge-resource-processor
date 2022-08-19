@@ -153,7 +153,9 @@ async function queryDataFromDB (sql, params) {
   const connection = await getInformixConnection()
   try {
     await connection.beginTransactionAsync()
-    result = await connection.queryAsync(util.format(sql, ...params))
+    const queryString = util.format(sql, ...params)
+    logger.debug(`Querying data from database: ${queryString}`)
+    result = await connection.queryAsync(queryString)
     await connection.commitTransactionAsync()
   } catch (e) {
     logger.error(`Error in 'queryDataFromDB' ${e}, rolling back transaction`)
@@ -198,7 +200,14 @@ async function forceV4ESFeeder (legacyId) {
 }
 
 function isReviewerRole (roleId) {
-  return roleId === config.REVIEWER_ROLE_ID || roleId === config.ITERATIVE_REVIEWER_ROLE_ID || roleId == config.LEGACY_REVIEWER_ROLE_ID || roleId == config.LEGACY_REVIEWER_ITERATIVE_ROLE_ID
+  return roleId === config.REVIEWER_ROLE_ID || roleId === config.ITERATIVE_REVIEWER_ROLE_ID || roleId === config.LEGACY_REVIEWER_ROLE_ID || roleId === config.LEGACY_REVIEWER_ITERATIVE_ROLE_ID
+}
+
+async function getUserId (handle) {
+  const token = await getM2Mtoken()
+  const result = await getRequest(`${config.MEMBER_API_V5_URL}/${handle}`, token)
+
+  return result.body.userId;
 }
 
 module.exports = {
@@ -213,5 +222,6 @@ module.exports = {
   queryDataFromDB,
   executeSQLonDB,
   forceV4ESFeeder,
-  isReviewerRole
+  isReviewerRole,
+  getUserId
 }

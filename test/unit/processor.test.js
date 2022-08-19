@@ -48,13 +48,13 @@ describe('Legacy resources processor Unit Tests', () => {
   for (const testMethod of Object.keys(testMethods)) {
     const { testMessage, requiredFields, integerFields, stringFields } = testMethods[testMethod]
     it(`test ${testMethod} message - invalid parameters, invalid timestamp`, async () => {
-      let message = _.cloneDeep(testMessage)
+      const message = _.cloneDeep(testMessage)
       message.timestamp = 'invalid'
       try {
         await processorService[testMethod](message)
         throw new Error('should not throw error here')
       } catch (err) {
-        assertValidationError(err, `"timestamp" must be a number of milliseconds or valid date string`)
+        assertValidationError(err, '"timestamp" must be a number of milliseconds or valid date string')
       }
     })
 
@@ -73,7 +73,7 @@ describe('Legacy resources processor Unit Tests', () => {
 
     for (const stringField of stringFields) {
       it(`test ${testMethod} message - invalid parameters, invalid string type field ${stringField}`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, stringField, 111)
         try {
           await processorService[testMethod](message)
@@ -86,7 +86,7 @@ describe('Legacy resources processor Unit Tests', () => {
 
     for (const integerField of integerFields) {
       it(`test ${testMethod} message - invalid parameters, invalid integer type field ${integerField}(wrong number)`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, integerField, 'string')
         try {
           await processorService[testMethod](message)
@@ -96,7 +96,7 @@ describe('Legacy resources processor Unit Tests', () => {
         }
       })
       it(`test ${testMethod} message - invalid parameters, invalid integer type field ${integerField}(wrong integer)`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, integerField, 1.1)
         try {
           await processorService[testMethod](message)
@@ -106,7 +106,7 @@ describe('Legacy resources processor Unit Tests', () => {
         }
       })
       it(`test ${testMethod} message - invalid parameters, invalid integer type field ${integerField}(negative)`, async () => {
-        let message = _.cloneDeep(testMessage)
+        const message = _.cloneDeep(testMessage)
         _.set(message, integerField, -1)
         try {
           await processorService[testMethod](message)
@@ -118,7 +118,7 @@ describe('Legacy resources processor Unit Tests', () => {
     }
 
     it(`test ${testMethod} message - invalid parameters, non existing challenge uuid`, async () => {
-      let message = _.cloneDeep(testMessage)
+      const message = _.cloneDeep(testMessage)
       _.set(message, 'payload.challengeId', nonExistingChallengeUuid)
       try {
         await processorService[testMethod](message)
@@ -130,15 +130,15 @@ describe('Legacy resources processor Unit Tests', () => {
     })
   }
 
-  it(`test createChallengeResource message - with valid message`, async () => {
-    await processorService['createChallengeResource'](testMethods['createChallengeResource'].testMessage)
-    infoLogs[0].should.startWith(`Successfully processed create challenge resource message`)
+  it('test createChallengeResource message - with valid message', async () => {
+    await processorService.createChallengeResource(testMethods.createChallengeResource.testMessage)
+    infoLogs[0].should.startWith('Successfully processed create challenge resource message')
     errorLogs.should.be.empty()
   })
 
-  it(`test deleteChallengeResource message - with valid message`, async () => {
-    await processorService['deleteChallengeResource'](testMethods['deleteChallengeResource'].testMessage)
-    infoLogs[0].should.startWith(`Successfully processed delete challenge resource message`)
+  it('test deleteChallengeResource message - with valid message', async () => {
+    await processorService.deleteChallengeResource(testMethods.deleteChallengeResource.testMessage)
+    infoLogs[0].should.startWith('Successfully processed delete challenge resource message')
     errorLogs.should.be.empty()
   })
 })

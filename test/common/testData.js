@@ -8,31 +8,31 @@ const submitterMemberId = 23225544 // lazybaer
 const legacyId = 30049360
 
 const submitterPayload = {
-  'challengeId': challengeUuid,
-  'roleId': 'bac822d2-725d-4973-9701-360918a09bc0',
-  'memberId': submitterMemberId
+  challengeId: challengeUuid,
+  roleId: 'bac822d2-725d-4973-9701-360918a09bc0',
+  memberId: submitterMemberId
 }
 
 const createResourceMessage = {
-  'topic': 'challenge.resources.notification.create',
-  'originator': 'resources-api',
-  'timestamp': '2019-05-03T15:46:05.575Z',
+  topic: 'challenge.resources.notification.create',
+  originator: 'resources-api',
+  timestamp: '2019-05-03T15:46:05.575Z',
   'mime-type': 'application/json',
-  'payload': submitterPayload
+  payload: submitterPayload
 }
 
 const deleteResourceMessage = {
-  'topic': 'challenge.resources.notification.delete',
-  'originator': 'resources-api',
-  'timestamp': '2019-05-03T15:46:05.575Z',
+  topic: 'challenge.resources.notification.delete',
+  originator: 'resources-api',
+  timestamp: '2019-05-03T15:46:05.575Z',
   'mime-type': 'application/json',
-  'payload': submitterPayload
+  payload: submitterPayload
 }
 
 const existingChallenge = {
-  'id': challengeUuid,
-  'legacyId': legacyId,
-  'type': 'Code'
+  id: challengeUuid,
+  legacyId,
+  type: 'Code'
 }
 
 const requiredFields = ['topic', 'originator', 'timestamp', 'mime-type', 'payload', 'payload.challengeId', 'payload.roleId', 'payload.memberId']
@@ -40,13 +40,13 @@ const stringFields = ['topic', 'originator', 'mime-type', 'payload.challengeId',
 const integerFields = ['payload.memberId']
 
 const testMethods = {
-  'createChallengeResource': {
+  createChallengeResource: {
     requiredFields,
     stringFields,
     integerFields,
     testMessage: createResourceMessage
   },
-  'deleteChallengeResource': {
+  deleteChallengeResource: {
     requiredFields,
     stringFields,
     integerFields,
