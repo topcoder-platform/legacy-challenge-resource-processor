@@ -7,28 +7,28 @@ const _ = require('lodash')
 
 // Sample challenge
 const sampleChallenge = {
-  'id': '96059e8d-4761-4978-9a14-c86ae6b971c3',
-  'legacyId': 30049360,
-  'type': 'Code',
-  'track': 'Develop',
-  'name': 'Test Challenge 1',
-  'description': 'Test Challenge 1 - Description',
-  'challengeSettings': [
+  id: '96059e8d-4761-4978-9a14-c86ae6b971c3',
+  legacyId: 30049360,
+  type: 'Code',
+  track: 'Develop',
+  name: 'Test Challenge 1',
+  description: 'Test Challenge 1 - Description',
+  challengeSettings: [
     {
-      'type': 'setting1',
-      'value': 'value1'
+      type: 'setting1',
+      value: 'value1'
     }
   ],
-  'metadata': [
+  metadata: [
     {
-      'name': 'reviewerPrize',
-      'value': '5'
+      name: 'reviewerPrize',
+      value: '5'
     }
   ],
-  'created': '2019-03-02T14:35:53.948Z',
-  'createdBy': 'Copilot1',
-  'updated': '2019-03-02T14:35:53.948Z',
-  'updatedBy': 'Copilot1'
+  created: '2019-03-02T14:35:53.948Z',
+  createdBy: 'Copilot1',
+  updated: '2019-03-02T14:35:53.948Z',
+  updatedBy: 'Copilot1'
 }
 
 const responses = {
@@ -40,7 +40,7 @@ const mockChallengeV5Api = http.createServer((req, res) => {
     return send(res, 200, responses[req.url])
   } else {
     // 404 for other routes
-    return send(res, 404, {message: 'Challenge not found'})
+    return send(res, 404, { message: 'Challenge not found' })
   }
 })
 

@@ -1,4 +1,5 @@
 const _ = require('lodash')
+
 const helper = require('../common/helper')
 const logger = require('../common/logger')
 
@@ -23,8 +24,16 @@ VALUES
   (?, ?, ?, ?, ?, CURRENT, CURRENT, ?)`
 
 // reference Direct App: https://github.com/appirio-tech/direct-app/blob/dev/components/project_payment_management/src/java/main/com/topcoder/management/payment/impl/persistence/DatabaseProjectPaymentPersistence.java#L87
-const DELETE_PROJECT_PAYMENT = `
-DELETE FROM project_payment WHERE resource_id = ?
+const DELETE_PROJECT_PAYMENT = 'DELETE FROM project_payment WHERE resource_id = ?'
+
+const QUERY_UPDATE_PROJECT_PAYMENT = 'UPDATE project_payment SET amount = ?, modify_user = ?, modify_date = CURRENT WHERE project_payment_id = ?'
+
+const QUERY_PROJECT_PAYMENT_BY_RESOURCE_ROLES = `
+SELECT r.resource_id as resource_id, r.resource_role_id as role_id, pp.project_payment_id as project_payment_id, pp.amount as amount
+FROM resource r
+LEFT JOIN project_payment pp ON pp.resource_id = r.resource_id
+WHERE r.project_id = %d
+  AND r.resource_role_id in (%s)
 `
 
 async function persistReviewerPayment (userId, resourceId, amount, projectPaymentTypeId) {
@@ -57,7 +66,30 @@ async function removeReviewerPayment (resourceId) {
   await helper.executeSQLonDB(DELETE_PROJECT_PAYMENT, [resourceId])
 }
 
+async function updateProjectPayment(userId, projectPaymentId, amount) {
+  const connection = await helper.getInformixConnection()
+  try {
+    logger.info('Open connection.')
+    await connection.beginTransactionAsync()
+    const query = await helper.prepare(connection, QUERY_UPDATE_PROJECT_PAYMENT)
+    logger.info('Using parameters: ', [amount, userId, projectPaymentId])
+    await query.executeAsync([amount, userId, projectPaymentId])
+    await connection.commitTransactionAsync()
+  } catch (e) {
+    await connection.rollbackTransactionAsync()
+    logger.error(`Error in 'updateProjectPayment' ${e}`)
+  } finally {
+    await connection.closeAsync()
+  }
+}
+
+async function getChallengePaymentsByRoleIds (projectId, roleIds) {
+  return helper.queryDataFromDB(QUERY_PROJECT_PAYMENT_BY_RESOURCE_ROLES, [projectId, roleIds.join(',')])
+}
+
 module.exports = {
   persistReviewerPayment,
-  removeReviewerPayment
+  removeReviewerPayment,
+  getChallengePaymentsByRoleIds,
+  updateProjectPayment
 }

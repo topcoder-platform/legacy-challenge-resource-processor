@@ -8,8 +8,9 @@ const logger = require('../common/logger')
 const helper = require('../common/helper')
 const ResourceDirectManager = require('./ResourceDirectManager')
 const ProjectServices = require('./ProjectService')
+const ProjectPaymentDAO = require('../dao/ProjectPaymentDAO')
 const notificationService = require('./NotificationService')
-const {isStudio} = require('../common/utils')
+const { isStudio } = require('../common/utils')
 
 /**
  * Check if a challenge exists on legacy (v4)
@@ -96,10 +97,10 @@ async function _updateChallengeResource (message, isDelete) {
 
   if (resourceRole.id === config.SUBMITTER_ROLE_ID && !isTask) {
     // force sync v4 elasticsearch service
-    logger.debug(`Start v4 challenge reindexing to the elasticsearch service`)
+    logger.debug('Start v4 challenge reindexing to the elasticsearch service')
     await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'))
     await new Promise(resolve => setTimeout(resolve, config.INDEX_CHALLENGE_TIMEOUT * 1000))
-    logger.debug(`End v4 challenge reindexing to the elasticsearch service`)
+    logger.debug('End v4 challenge reindexing to the elasticsearch service')
     if (isDelete) {
       logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
       await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
@@ -182,9 +183,78 @@ async function deleteChallengeResource (message) {
 
 deleteChallengeResource.schema = createChallengeResource.schema
 
+
+/**
+ * Updates resource payment
+ *
+ * @param {Object} message The message containing the information of challenge whose resource payment to update
+ */
+
+async function updateResourcePayment (message) {
+  logger.info(`Received update resource payment message : ${JSON.stringify(message)}`)
+  const { payload: { metadata, legacyId, updatedBy } } = message
+
+  // if legacy challenge has not yet been created, we don't need to modify any payment records
+  // as they don't exist yet :) challenge.action.resource.create should take care of that
+  if (legacyId == null) {
+    logger.info(`LegacyId is null. Skipping update resource payment message : ${JSON.stringify(message)}`)
+    return;
+  }
+
+  logger.info(`Get reviewer payments for challenge ${legacyId}`)
+  const reviewerPaymentAmounts = await ProjectPaymentDAO.getChallengePaymentsByRoleIds(legacyId, [config.LEGACY_REVIEWER_ROLE_ID, config.LEGACY_REVIEWER_ITERATIVE_ROLE_ID])
+
+  logger.info(`Reviewer payments for legacyId: ${legacyId} are -> ${JSON.stringify(reviewerPaymentAmounts)}`)
+
+  const reviewerPrize = _.find(metadata, { name: 'reviewerPrize' })
+  logger.info(`reviewerPrize: ${JSON.stringify(reviewerPrize)}`)
+
+  try {
+    reviewerPrize.value = parseFloat(reviewerPrize.value)
+  } catch (err) {
+    logger.error(`Invalid reviewerPrize: ${JSON.stringify(reviewerPrize)}`)
+    return;
+  }
+
+  const userId = await helper.getUserId(updatedBy);
+
+  for (const reviewerPaymentAmount of reviewerPaymentAmounts) {
+    logger.info(`Payment Amt: ${reviewerPrize.value || 0}`)
+
+    const { resource_id: resourceId, role_id: roleId, project_payment_id: projectPaymentId, amount } = reviewerPaymentAmount
+    if (projectPaymentId == null && reviewerPrize != null) {
+      logger.info(`Add new payment for resource ${resourceId} with role ${roleId}.`)
+      await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPrize.value, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID);
+    } else {
+      logger.info(`Update reviewer payment ${amount} for resource ${resourceId} with role ${roleId} and payment ${projectPaymentId} with amount ${reviewerPrize.value}`)
+      await ProjectPaymentDAO.updateProjectPayment(userId, projectPaymentId, reviewerPrize.value)
+    }
+  }
+}
+
+updateResourcePayment.schema = {
+  message: Joi.object().keys({
+    topic: Joi.string().required(),
+    originator: Joi.string().required(),
+    timestamp: Joi.date().required(),
+    'mime-type': Joi.string().required(),
+    key: Joi.string().allow(null),
+    payload: Joi.object().keys({
+      legacyId: Joi.number().integer().positive(),
+      id: Joi.string().required(),
+      updatedBy: Joi.string(),
+      metadata: Joi.array().items(Joi.object().keys({
+        name: Joi.string().required(),
+        value: Joi.string().required()
+      }).unknown(true))
+    }).unknown(true).required()
+  }).required()
+}
+
 module.exports = {
   createChallengeResource,
-  deleteChallengeResource
+  deleteChallengeResource,
+  updateResourcePayment
 }
 
 // logger.buildService(module.exports)
