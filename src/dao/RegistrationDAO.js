@@ -6,6 +6,7 @@ const RESOURCE_TYPE_EXT_REF_ID = 1
 const RESOURCE_TYPE_HANDLE_ID = 2
 const RESOURCE_TYPE_REG_DATE = 6
 const RESOURCE_TYPE_APPEALS_COMPLETED = 13
+const RESOURCE_TYPE_MANUAL_PAYMENTS = 15
 
 const RESOURCE_TYPE_COPILOT_PAYMENT_ID = 7
 const COPILOT_RESOURCE_ROLE_ID = 14
@@ -546,5 +547,6 @@ module.exports = {
   insertChallengeResult,
   getPhaseIdForPhaseTypeId,
   getResourceRoles,
-  getUseTermsOfAgree
+  getUseTermsOfAgree,
+  RESOURCE_TYPE_MANUAL_PAYMENTS
 }
