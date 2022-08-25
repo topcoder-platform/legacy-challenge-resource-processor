@@ -9,6 +9,8 @@ const helper = require('../common/helper')
 const ResourceDirectManager = require('./ResourceDirectManager')
 const ProjectServices = require('./ProjectService')
 const ProjectPaymentDAO = require('../dao/ProjectPaymentDAO')
+const RegistrationDAO = require('../dao/RegistrationDAO');
+
 const notificationService = require('./NotificationService')
 const { isStudio } = require('../common/utils')
 
@@ -225,6 +227,7 @@ async function updateResourcePayment (message) {
     if (projectPaymentId == null && reviewerPrize != null) {
       logger.info(`Add new payment for resource ${resourceId} with role ${roleId}.`)
       await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPrize.value, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID);
+      await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
     } else {
       logger.info(`Update reviewer payment ${amount} for resource ${resourceId} with role ${roleId} and payment ${projectPaymentId} with amount ${reviewerPrize.value}`)
       await ProjectPaymentDAO.updateProjectPayment(userId, projectPaymentId, reviewerPrize.value)
