@@ -82,6 +82,10 @@ async function _updateChallengeResource (message, isDelete) {
   const metadata = _.get(v5Challenge, 'metadata', [])
   const reviewerPaymentAmount = !helper.isReviewerRole(resourceRoleId) ? null : _.get(_.find(metadata, m => m.name === 'reviewerPrize'), 'value', null)
 
+  // FIXME: incorporate self service reviewer payment logic - if challenge satisfies conditions under which payment amount needs to be set to manual, 
+  // set isReviewerPaymentManual to true and set reviewerPaymentAmount to null
+  const isReviewerPaymentManual = _.find(metadata, m => m.name === 'reviewerPrize') != null
+
   const body = {
     roleId: resourceRoleId,
     resourceUserId: userId,
@@ -116,7 +120,7 @@ async function _updateChallengeResource (message, isDelete) {
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
-      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount)
+      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, { copilotPaymentAmount, manual: false }, { reviewerPaymentAmount, manual: isReviewerPaymentManual })
     }
   }
   if (config.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.indexOf(resourceRole.id) === -1) {

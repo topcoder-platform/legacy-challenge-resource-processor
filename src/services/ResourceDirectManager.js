@@ -16,7 +16,10 @@ const { isReviewerRole } = require('../common/helper')
  *            the id of the user.
  * @param handle
  */
-async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount) {
+async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPayment, reviewerPayment) {
+  const { reviewerPaymentAmount, manual: isReviewerPaymentManual } = reviewerPayment;
+  const { copilotPaymentAmount } = copilotPayment;
+
   const found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   const termChecking = true
   const eligible = true
@@ -46,8 +49,11 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount)
 
     if (isReviewerRole(roleId) && reviewerPaymentAmount != null) {
-      logger.info('Add reviewer payment.')
+      logger.info(`Add reviewer payment. Payment type is set to ${isReviewerPaymentManual ? 'manual' : 'automatic'}`)
       await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPaymentAmount, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID)
+      if (isReviewerPaymentManual) {
+        await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
+      }
     } else {
       logger.info(`Not a reviewer role ${roleId} or reviewerPaymentAmount:${reviewerPaymentAmount} is null`)
     }
@@ -93,8 +99,8 @@ async function removeRole (legacyChallengeId, roleId, userId) {
  * @param handle
  * @param copilotPaymentAmount
  */
-async function addResource (challengeId, resourceRoleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount) {
-  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPaymentAmount, reviewerPaymentAmount)
+async function addResource (challengeId, resourceRoleId, userId, handle, copilotPayment, reviewerPayment) {
+  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPayment, reviewerPayment)
 }
 
 /**
