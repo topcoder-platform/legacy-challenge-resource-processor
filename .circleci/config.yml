@@ -70,7 +70,7 @@ workflows:
             branches:
               only:
                 - develop
-                - feat/manual-payment
+                - feat/self-service-manual-payment
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.
