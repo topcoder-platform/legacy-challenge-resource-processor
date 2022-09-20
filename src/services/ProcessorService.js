@@ -14,6 +14,33 @@ const RegistrationDAO = require('../dao/RegistrationDAO');
 const notificationService = require('./NotificationService')
 const { isStudio } = require('../common/utils')
 
+function getReviewerPaymentData(v5Challenge) {
+  const metadata = _.get(v5Challenge, 'metadata', [])
+
+  let reviewerPaymentAmount = null;
+
+  // Currently self service challenges & challenges with (metadata: { name: "reviewerPrize", value: "0" }) are considered as manual payments.
+  // A manual payment is not overwritten with an automatically calculated value in OR
+  if (v5Challenge.legacy != null && v5Challenge.legacy.selfService) {
+    logger.info('Self service challenge. Treat as manual payment.')
+    const reviewerPaymentAmounts = _.get(_.find(v5Challenge.prizeSets, prizeSet => prizeSet.type === config.REVIEWER_PAYMENT_TYPE), 'prizes', null)
+    logger.info(`Reviewer payment amounts: ${JSON.stringify(reviewerPaymentAmounts)}`)
+    reviewerPaymentAmount = reviewerPaymentAmounts != null && reviewerPaymentAmounts.length > 0 ? reviewerPaymentAmounts[0].value : null;
+  }
+  else {
+    // Since this is how Topgear currently stores the reviewer payment amount, we need to have this separate check
+    // If Topgear ever changes the way it stores the reviewer payment amount, this check can be removed in favor of _.some(challenge.prizeSets.type == 'reviewer')
+    // to make the amount extraction consistent
+    reviewerPaymentAmount = _.get(_.find(metadata, m => m.name === 'reviewerPrize'), 'value', null)
+    logger.info(`Reviewer payment amount (extracted from metadata): ${reviewerPaymentAmount}`)
+  }
+
+  return {
+    reviewerPaymentAmount,
+    manual: reviewerPaymentAmount != null
+  }
+}
+
 /**
  * Check if a challenge exists on legacy (v4)
  * @param {Object} message The message containing the challenge resource information
@@ -78,13 +105,9 @@ async function _updateChallengeResource (message, isDelete) {
 
   const prizeSets = _.get(v5Challenge, 'prizeSets')
   const copilotPaymentAmount = _.get(_.find(prizeSets, p => p.type === config.COPILOT_PAYMENT_TYPE), 'prizes[0].value', null)
+  const reviewerPaymentData = helper.isReviewerRole(resourceRoleId) ? getReviewerPaymentData(v5Challenge) : null;
 
-  const metadata = _.get(v5Challenge, 'metadata', [])
-  const reviewerPaymentAmount = !helper.isReviewerRole(resourceRoleId) ? null : _.get(_.find(metadata, m => m.name === 'reviewerPrize'), 'value', null)
-
-  // FIXME: incorporate self service reviewer payment logic - if challenge satisfies conditions under which payment amount needs to be set to manual, 
-  // set isReviewerPaymentManual to true and set reviewerPaymentAmount to null
-  const isReviewerPaymentManual = _.find(metadata, m => m.name === 'reviewerPrize') != null
+  logger.info(`Reviewers payment data: ${JSON.stringify(reviewerPaymentData)}`)
 
   const body = {
     roleId: resourceRoleId,
@@ -120,7 +143,7 @@ async function _updateChallengeResource (message, isDelete) {
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
-      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, { copilotPaymentAmount, manual: false }, { reviewerPaymentAmount, manual: isReviewerPaymentManual })
+      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, { copilotPaymentAmount, manual: false }, reviewerPaymentData)
     }
   }
   if (config.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.indexOf(resourceRole.id) === -1) {
@@ -198,7 +221,7 @@ deleteChallengeResource.schema = createChallengeResource.schema
 
 async function updateResourcePayment (message) {
   logger.info(`Received update resource payment message : ${JSON.stringify(message)}`)
-  const { payload: { metadata, legacyId, updatedBy } } = message
+  const { payload: { legacyId, updatedBy } } = message
 
   // if legacy challenge has not yet been created, we don't need to modify any payment records
   // as they don't exist yet :) challenge.action.resource.create should take care of that
@@ -212,11 +235,16 @@ async function updateResourcePayment (message) {
 
   logger.info(`Reviewer payments for legacyId: ${legacyId} are -> ${JSON.stringify(reviewerPaymentAmounts)}`)
 
-  const reviewerPrize = _.find(metadata, { name: 'reviewerPrize' })
+  let reviewerPrize = getReviewerPaymentData(message.payload).reviewerPaymentAmount;
   logger.info(`reviewerPrize: ${JSON.stringify(reviewerPrize)}`)
 
+  if (reviewerPrize == null) {
+    logger.info(`reviewerPrize is null. Skipping update resource payment message : ${JSON.stringify(message)}`)
+    return;
+  }
+
   try {
-    reviewerPrize.value = parseFloat(reviewerPrize.value)
+    reviewerPrize = parseFloat(reviewerPrize)
   } catch (err) {
     logger.error(`Invalid reviewerPrize: ${JSON.stringify(reviewerPrize)}`)
     return;
@@ -225,16 +253,16 @@ async function updateResourcePayment (message) {
   const userId = await helper.getUserId(updatedBy);
 
   for (const reviewerPaymentAmount of reviewerPaymentAmounts) {
-    logger.info(`Payment Amt: ${reviewerPrize.value || 0}`)
+    logger.info(`Payment Amt: ${reviewerPrize}`)
 
     const { resource_id: resourceId, role_id: roleId, project_payment_id: projectPaymentId, amount } = reviewerPaymentAmount
-    if (projectPaymentId == null && reviewerPrize != null) {
+    if (projectPaymentId == null) {
       logger.info(`Add new payment for resource ${resourceId} with role ${roleId}.`)
-      await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPrize.value, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID);
+      await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPrize, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID);
       await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
     } else {
       logger.info(`Update reviewer payment ${amount} for resource ${resourceId} with role ${roleId} and payment ${projectPaymentId} with amount ${reviewerPrize.value}`)
-      await ProjectPaymentDAO.updateProjectPayment(userId, projectPaymentId, reviewerPrize.value)
+      await ProjectPaymentDAO.updateProjectPayment(userId, projectPaymentId, reviewerPrize)
     }
   }
 }

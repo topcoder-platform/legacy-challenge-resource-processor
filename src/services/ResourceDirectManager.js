@@ -18,7 +18,7 @@ const { isReviewerRole } = require('../common/helper')
  */
 async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPayment, reviewerPayment) {
   const { reviewerPaymentAmount, manual: isReviewerPaymentManual } = reviewerPayment || {};
-  const { copilotPaymentAmount } = copilotPayment;
+  const { copilotPaymentAmount } = copilotPayment || {};
 
   const found = await ProjectServices.resourceExists(legacyChallengeId, roleId, userId)
   const termChecking = true
