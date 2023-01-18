@@ -19,21 +19,23 @@ function getReviewerPaymentData(v5Challenge) {
 
   let reviewerPaymentAmount = null;
 
-  // Currently self service challenges & challenges with (metadata: { name: "reviewerPrize", value: "0" }) are considered as manual payments.
-  // A manual payment is not overwritten with an automatically calculated value in OR
-  if (v5Challenge.legacy != null && v5Challenge.legacy.selfService) {
-    logger.info('Self service challenge. Treat as manual payment.')
-    const reviewerPaymentAmounts = _.get(_.find(v5Challenge.prizeSets, prizeSet => prizeSet.type === config.REVIEWER_PAYMENT_TYPE), 'prizes', null)
-    logger.info(`Reviewer payment amounts: ${JSON.stringify(reviewerPaymentAmounts)}`)
-    reviewerPaymentAmount = reviewerPaymentAmounts != null && reviewerPaymentAmounts.length > 0 ? reviewerPaymentAmounts[0].value : null;
-  }
-  else {
+  // if prizeSets[x].type == 'reviewer' then prizeSets[x].prizes[0].value is a "fixed" reviewer payment amount
+  // this applies to Self Service & Topgear specific challenges
+  // Note: for challenges that set a reviewer prize, but have multiple reviewers all reviewers will have the prize amount
+  // and if this is not the desired behaviour, then we'll need to settle on a an interface to define which reviewer gets what amount
+  // and it'll likely be through index (prizeSets[0] is 1st reviewer, prizeSets[1] is 2nd reviewer, etc.) since at this stage reviewer
+  // information is not available
+  const reviewerPaymentAmounts = _.get(_.find(v5Challenge.prizeSets, prizeSet => prizeSet.type === config.REVIEWER_PAYMENT_TYPE), 'prizes', null)
+  logger.info(`${v5Challenge.id}: Reviewer payment amounts: ${JSON.stringify(reviewerPaymentAmounts)}`)
+  reviewerPaymentAmount = reviewerPaymentAmounts != null && reviewerPaymentAmounts.length > 0 ? reviewerPaymentAmounts[0].value : null;
+
+  if (reviewerPaymentAmount == null) {
     // Since this is how Topgear currently stores the reviewer payment amount, we need to have this separate check
-    // If Topgear ever changes the way it stores the reviewer payment amount, this check can be removed in favor of _.some(challenge.prizeSets.type == 'reviewer')
-    // to make the amount extraction consistent
+    // If Topgear ever changes the way it stores the reviewer payment amount, this check can be removed to make the amount extraction consistent
     reviewerPaymentAmount = _.get(_.find(metadata, m => m.name === 'reviewerPrize'), 'value', null)
-    logger.info(`Reviewer payment amount (extracted from metadata): ${reviewerPaymentAmount}`)
+    logger.info(`${v5Challenge.id}: Reviewer payment amount (extracted from metadata): ${reviewerPaymentAmount}`)
   }
+
 
   return {
     reviewerPaymentAmount,
