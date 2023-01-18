@@ -70,7 +70,7 @@ workflows:
             branches:
               only:
                 - develop
-                - feat/self-service-manual-payment
+                - PLAT-2135
 
       # Production builds are exectuted only on tagged commits to the
       # master branch.
