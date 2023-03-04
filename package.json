@@ -18,7 +18,7 @@
   "license": "none",
   "devDependencies": {
     "cross-env": "^5.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^10.2.0",
     "mocha-prepare": "^0.1.0",
     "nock": "^9.4.4",
     "nyc": "^14.1.0",
