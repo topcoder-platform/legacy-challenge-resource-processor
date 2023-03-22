@@ -52,6 +52,7 @@ async function persistResourceWithRoleId (userId, challengeId, resourceId, roleI
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_HANDLE_ID, handle)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_REG_DATE, regDate)
   await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_APPEALS_COMPLETED, 'NO')
+
   if (roleId === COPILOT_RESOURCE_ROLE_ID) {
     logger.debug(`Copilot Payment Amount Set on Resource Info Table: ${copilotPaymentAmount}`)
     await persistResourceInfo(userId, resourceId, RESOURCE_TYPE_COPILOT_PAYMENT_ID, copilotPaymentAmount || 0)

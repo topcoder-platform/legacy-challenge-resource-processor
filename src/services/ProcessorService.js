@@ -116,12 +116,17 @@ async function _updateChallengeResource (message, isDelete) {
     await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'))
     await new Promise(resolve => setTimeout(resolve, config.INDEX_CHALLENGE_TIMEOUT * 1000))
     logger.debug('End v4 challenge reindexing to the elasticsearch service')
+
     if (isDelete) {
-      logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
-      await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
+      // logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
+      // await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
+      logger.debug(`Unregistering Submitter ${legacyChallengeID} with roleID ${config.LEGACY_SUBMITTER_ROLE_ID} and userId ${userId}`)
+      await ResourceDirectManager.removeResource(legacyChallengeID, config.LEGACY_SUBMITTER_ROLE_ID, userId)
     } else {
-      logger.debug(`v4 Registering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId} - ${JSON.stringify(body)}`)
-      await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId}`, {}, m2mToken)
+      // logger.debug(`v4 Registering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId} - ${JSON.stringify(body)}`)
+      // await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId}`, {}, m2mToken)
+      logger.debug(`Registering Submitter ${legacyChallengeID} with roleID ${config.LEGACY_SUBMITTER_ROLE_ID} and userId ${userId}`)
+      await ResourceDirectManager.addResource(legacyChallengeID, config.LEGACY_SUBMITTER_ROLE_ID, userId, handle, {}, {})
     }
   } else {
     if (isDelete) {

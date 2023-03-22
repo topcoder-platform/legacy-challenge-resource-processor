@@ -5,7 +5,7 @@ const ProjectPaymentDAO = require('../dao/ProjectPaymentDAO')
 const logger = require('../common/logger')
 const config = require('config')
 const { find, toString } = require('lodash')
-const { isReviewerRole } = require('../common/helper')
+const { isReviewerRole, isSubmitterRole } = require('../common/helper')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
@@ -26,19 +26,22 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
   if (found) {
     throw new Error('User ' + userId + ' with role ' + roleId + ' already exists')
   }
-  // if not found && user agreed terms (if any) && is eligible, add resource
-  if (!found && termChecking && eligible) {
-    const allroles = await ProjectServices.getAllResourceRoles()
-    let roleToSet = null
-    if (allroles && allroles.length > 0) {
-      for (const role of allroles) {
-        if (role.resource_role_id === roleId) {
-          roleToSet = role
+
+  if (!isSubmitterRole(roleId)) {
+    // if not found && user agreed terms (if any) && is eligible, add resource
+    if (!found && termChecking && eligible) {
+      const allroles = await ProjectServices.getAllResourceRoles()
+      let roleToSet = null
+      if (allroles && allroles.length > 0) {
+        for (const role of allroles) {
+          if (role.resource_role_id === roleId) {
+            roleToSet = role
+          }
         }
       }
-    }
-    if (!roleToSet) {
-      throw new Error('Invalid role id ' + roleId)
+      if (!roleToSet) {
+        throw new Error('Invalid role id ' + roleId)
+      }
     }
 
     let projectPhaseId = null
