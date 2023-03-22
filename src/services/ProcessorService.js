@@ -44,21 +44,6 @@ function getReviewerPaymentData(v5Challenge) {
 }
 
 /**
- * Check if a challenge exists on legacy (v4)
- * @param {Object} message The message containing the challenge resource information
- */
-async function legacyChallengeExistInV4 (legacyId) {
-  try {
-    const m2mToken = await helper.getM2Mtoken()
-    logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
-    await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
-  } catch (e) {
-    logger.logFullError(e)
-    throw new Error(`v4 Challenge not found for ${legacyId}`)
-  }
-}
-
-/**
  * Updates (create or delete) a challenge resource based on the isDelete flag
  *
  * @param {Object} message The message containing the challenge resource information
@@ -87,7 +72,6 @@ async function _updateChallengeResource (message, isDelete) {
   if (!v5Challenge.legacyId) {
     throw new Error(`Challenge ${challengeId} has no Legacy ID: ${JSON.stringify(v5Challenge)}`)
   }
-  await legacyChallengeExistInV4(v5Challenge.legacyId)
 
   let resourceRole = null
   let resourceRoleResponse = null
