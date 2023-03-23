@@ -27,45 +27,43 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     throw new Error('User ' + userId + ' with role ' + roleId + ' already exists')
   }
 
-  if (!isSubmitterRole(roleId)) {
-    // if not found && user agreed terms (if any) && is eligible, add resource
-    if (!found && termChecking && eligible) {
-      const allroles = await ProjectServices.getAllResourceRoles()
-      let roleToSet = null
-      if (allroles && allroles.length > 0) {
-        for (const role of allroles) {
-          if (role.resource_role_id === roleId) {
-            roleToSet = role
-          }
+  // if not found && user agreed terms (if any) && is eligible, add resource
+  if (!found && termChecking && eligible) {
+    const allroles = await ProjectServices.getAllResourceRoles()
+    let roleToSet = null
+    if (allroles && allroles.length > 0) {
+      for (const role of allroles) {
+        if (role.resource_role_id === roleId) {
+          roleToSet = role
         }
       }
-      if (!roleToSet) {
-        throw new Error('Invalid role id ' + roleId)
-      }
     }
-
-    let projectPhaseId = null
-    if (roleId === config.LEGACY_REVIEWER_ROLE_ID) {
-      projectPhaseId = await RegistrationDAO.getPhaseIdForPhaseTypeId(legacyChallengeId, config.LEGACY_REVIEW_PHASE_ID)
+    if (!roleToSet) {
+      throw new Error('Invalid role id ' + roleId)
     }
-    const resourceId = await SequenceDAO.getResourceSeqNextId()
-    await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount)
-
-    if (isReviewerRole(roleId) && reviewerPaymentAmount != null) {
-      logger.info(`Add reviewer payment. Payment type is set to ${isReviewerPaymentManual ? 'manual' : 'automatic'}`)
-      await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPaymentAmount, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID)
-      if (isReviewerPaymentManual) {
-        await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
-      }
-    } else {
-      logger.info(`Not a reviewer role ${roleId} or reviewerPaymentAmount:${reviewerPaymentAmount} is null`)
-    }
-
-    // only check notification setting for observer, else always add
-    // if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {
-    //   await ProjectServices.addNotifications(contestId, userId, Constants.TIMELINE_NOTIFICATION_ID, operatorId)
-    // }
   }
+
+  let projectPhaseId = null
+  if (roleId === config.LEGACY_REVIEWER_ROLE_ID) {
+    projectPhaseId = await RegistrationDAO.getPhaseIdForPhaseTypeId(legacyChallengeId, config.LEGACY_REVIEW_PHASE_ID)
+  }
+  const resourceId = await SequenceDAO.getResourceSeqNextId()
+  await RegistrationDAO.persistResourceWithRoleId(userId, legacyChallengeId, resourceId, roleId, handle, projectPhaseId, copilotPaymentAmount)
+
+  if (isReviewerRole(roleId) && reviewerPaymentAmount != null) {
+    logger.info(`Add reviewer payment. Payment type is set to ${isReviewerPaymentManual ? 'manual' : 'automatic'}`)
+    await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPaymentAmount, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID)
+    if (isReviewerPaymentManual) {
+      await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
+    }
+  } else {
+    logger.info(`Not a reviewer role ${roleId} or reviewerPaymentAmount:${reviewerPaymentAmount} is null`)
+  }
+
+  // only check notification setting for observer, else always add
+  // if (roleId !== Constants.RESOURCE_ROLE_OBSERVER_ID || addNotification) {
+  //   await ProjectServices.addNotifications(contestId, userId, Constants.TIMELINE_NOTIFICATION_ID, operatorId)
+  // }
 }
 
 /**
