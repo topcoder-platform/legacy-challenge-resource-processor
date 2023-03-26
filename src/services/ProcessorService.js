@@ -44,21 +44,6 @@ function getReviewerPaymentData(v5Challenge) {
 }
 
 /**
- * Check if a challenge exists on legacy (v4)
- * @param {Object} message The message containing the challenge resource information
- */
-async function legacyChallengeExistInV4 (legacyId) {
-  try {
-    const m2mToken = await helper.getM2Mtoken()
-    logger.debug(`Calling V4: ${config.CHALLENGE_API_V4_URL}/${legacyId}`)
-    await helper.getRequest(`${config.CHALLENGE_API_V4_URL}/${legacyId}`, m2mToken)
-  } catch (e) {
-    logger.logFullError(e)
-    throw new Error(`v4 Challenge not found for ${legacyId}`)
-  }
-}
-
-/**
  * Updates (create or delete) a challenge resource based on the isDelete flag
  *
  * @param {Object} message The message containing the challenge resource information
@@ -87,7 +72,6 @@ async function _updateChallengeResource (message, isDelete) {
   if (!v5Challenge.legacyId) {
     throw new Error(`Challenge ${challengeId} has no Legacy ID: ${JSON.stringify(v5Challenge)}`)
   }
-  await legacyChallengeExistInV4(v5Challenge.legacyId)
 
   let resourceRole = null
   let resourceRoleResponse = null
@@ -132,12 +116,17 @@ async function _updateChallengeResource (message, isDelete) {
     await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'))
     await new Promise(resolve => setTimeout(resolve, config.INDEX_CHALLENGE_TIMEOUT * 1000))
     logger.debug('End v4 challenge reindexing to the elasticsearch service')
+
     if (isDelete) {
-      logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
-      await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
+      // logger.debug(`v4 Unregistering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId} - ${JSON.stringify(body)}`)
+      // await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/unregister?userId=${userId}`, {}, m2mToken)
+      logger.debug(`Unregistering Submitter ${legacyChallengeID} with roleID ${config.LEGACY_SUBMITTER_ROLE_ID} and userId ${userId}`)
+      await ResourceDirectManager.removeResource(legacyChallengeID, config.LEGACY_SUBMITTER_ROLE_ID, userId)
     } else {
-      logger.debug(`v4 Registering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId} - ${JSON.stringify(body)}`)
-      await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId}`, {}, m2mToken)
+      // logger.debug(`v4 Registering Submitter ${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId} - ${JSON.stringify(body)}`)
+      // await helper.postRequest(`${config.CHALLENGE_API_V4_URL}/${_.get(v5Challenge, 'legacyId')}/register?userId=${userId}&v5ChallengeId=${challengeId}`, {}, m2mToken)
+      logger.debug(`Registering Submitter ${legacyChallengeID} with roleID ${config.LEGACY_SUBMITTER_ROLE_ID} and userId ${userId}`)
+      await ResourceDirectManager.addResource(legacyChallengeID, config.LEGACY_SUBMITTER_ROLE_ID, userId, handle, {}, {})
     }
   } else {
     if (isDelete) {

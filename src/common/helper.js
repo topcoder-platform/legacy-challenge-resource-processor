@@ -203,6 +203,10 @@ function isReviewerRole (roleId) {
   return roleId === config.REVIEWER_ROLE_ID || roleId === config.ITERATIVE_REVIEWER_ROLE_ID || roleId === config.LEGACY_REVIEWER_ROLE_ID || roleId === config.LEGACY_REVIEWER_ITERATIVE_ROLE_ID
 }
 
+function isSubmitterRole (roleId) {
+  return roleId === config.LEGACY_SUBMITTER_ROLE_ID || roleId === config.SUBMITTER_ROLE_ID
+}
+
 async function getUserId (handle) {
   const token = await getM2Mtoken()
   const result = await getRequest(`${config.MEMBER_API_V5_URL}/${handle}`, token)
@@ -223,5 +227,6 @@ module.exports = {
   executeSQLonDB,
   forceV4ESFeeder,
   isReviewerRole,
+  isSubmitterRole,
   getUserId
 }
