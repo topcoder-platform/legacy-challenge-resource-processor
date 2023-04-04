@@ -113,7 +113,7 @@ async function _updateChallengeResource (message, isDelete) {
   if (resourceRole.id === config.SUBMITTER_ROLE_ID && !isTask) {
     // force sync v4 elasticsearch service
     logger.debug('Start v4 challenge reindexing to the elasticsearch service')
-    await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'))
+    // await helper.forceV4ESFeeder(_.get(v5Challenge, 'legacyId'))
     await new Promise(resolve => setTimeout(resolve, config.INDEX_CHALLENGE_TIMEOUT * 1000))
     logger.debug('End v4 challenge reindexing to the elasticsearch service')
 
