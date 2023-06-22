@@ -1,6 +1,8 @@
 const helper = require('../common/helper')
 const moment = require('moment')
 const logger = require('../common/logger')
+const { getCompInquirySeqNextId } = require('./SequenceDAO')
+const { DESIGN_PROJECT_TYPE, DEVELOPMENT_PROJECT_TYPE, COMPONENT_TESTING_PROJECT_TYPE } = require('../constants')
 
 const RESOURCE_TYPE_EXT_REF_ID = 1
 const RESOURCE_TYPE_HANDLE_ID = 2
@@ -345,6 +347,24 @@ async function getComponentInfo (challengeId) {
   return helper.queryDataFromDB(QUERY_GET_COMPONENT_INFO, [challengeId, challengeId, challengeId, challengeId, challengeId])
 }
 
+const QUERY_UPDATE_COMPONENT_VERSION_INFO = `
+UPDATE comp_versions
+SET rating = ?
+WHERE comp_vers_id = ?
+`
+
+/**
+ * Update component version info
+ * @param componentVersionId the componentVersionId to pass
+ * @param rating the rating to pass
+ * @param componentVersionId
+ * @param rating
+ * @return the result
+ */
+async function updateComponentVersionInfo (componentVersionId, rating) {
+  return helper.executeSQLonDB(QUERY_UPDATE_COMPONENT_VERSION_INFO, [rating, componentVersionId])
+}
+
 const QUERY_GET_USER_RATING = `
 SELECT
 nvl((SELECT rating FROM user_rating 
@@ -527,6 +547,89 @@ async function getUseTermsOfAgree (userId, challengeId, roleId) {
   return helper.queryDataFromDB(QUERY_GET_CHALLENGE_TERMS_OF_USE, [userId, challengeId, roleId])
 }
 
+/**
+ * Register component inquiry
+ * @param {Number} userId the user id
+ * @param {Number} challengeId the challenge id
+ * @returns The component info object
+ */
+async function registerComponentInquiry (userId, challengeId) {
+  const [compInfo] = await getComponentInfo(challengeId)
+  if (!compInfo) {
+    throw new Error(`Challenge with id: ${challengeId} does not exist`)
+  }
+  const [userRating] = await getUserRating(userId, compInfo.projectCategoryId + 111)
+  const rating = null
+  if (userRating) {
+    rating = userRating.rating
+  }
+  const nextId = await getCompInquirySeqNextId()
+  await insertRegistrationRecord(
+    nextId,
+    compInfo.componentId,
+    userId,
+    compInfo.comments,
+    1,
+    rating,
+    parseInt(compInfo.projectCategoryId, 10) === DESIGN_PROJECT_TYPE || parseInt(compInfo.projectCategoryId, 10) == DEVELOPMENT_PROJECT_TYPE ? compInfo.projectCategoryId : null,
+    userId,
+    compInfo.version,
+    challengeId
+  )
+  await updateComponentVersionInfo(compInfo.componentVersionId, rating)
+  const [updated] = await getComponentInfo(challengeId)
+  return updated
+}
+
+/**
+ * Check if the rating suit for software category contests.
+ * The code logic is duplicated from server-side java code.
+ *
+ * @param phaseId the phase id.
+ * @param projectCategoryId the category id.
+ * @return true if the rating is suitable for development (software) category challenge, otherwise false.
+ */
+function isRatingSuitableDevelopment (phaseId, projectCategoryId) {
+  let suitable = false
+  if (projectCategoryId === COMPONENT_TESTING_PROJECT_TYPE) {
+    if (phaseId === 113) {
+      suitable = true
+    }
+  } else if (projectCategoryId + 111 === phaseId) {
+    suitable = true
+  }
+  return suitable
+}
+
+const DELETE_PROJECT_RESULT = `
+DELETE FROM project_result
+WHERE project_id = ?
+AND user_id = ?
+`
+
+/**
+ * Delete project result
+ * @param {Number} challengeId the challenge id
+ * @param {Number} userId the user id
+ */
+async function deleteProjectResult (challengeId, userId) {
+  return helper.executeSQLonDB(DELETE_PROJECT_RESULT, [challengeId, userId])
+}
+
+const DELETE_COMPONENT_INQUIRY = `
+DELETE FROM component_inquiry
+WHERE project_id = ?
+AND user_id = ?
+`
+
+/**
+ * Delete component inquiry
+ * @param {Number} challengeId the challenge id
+ * @param {Number} userId the user id
+ */
+async function deleteComponentInquiry (challengeId, userId) {
+  return helper.executeSQLonDB(DELETE_COMPONENT_INQUIRY, [challengeId, userId])
+}
 module.exports = {
   persistResource,
   persistResourceWithRoleId,
@@ -549,5 +652,10 @@ module.exports = {
   getPhaseIdForPhaseTypeId,
   getResourceRoles,
   getUseTermsOfAgree,
-  RESOURCE_TYPE_MANUAL_PAYMENTS
+  RESOURCE_TYPE_MANUAL_PAYMENTS,
+  registerComponentInquiry,
+  updateComponentVersionInfo,
+  isRatingSuitableDevelopment,
+  deleteProjectResult,
+  deleteComponentInquiry,
 }

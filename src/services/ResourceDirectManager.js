@@ -6,6 +6,7 @@ const logger = require('../common/logger')
 const config = require('config')
 const { find, toString } = require('lodash')
 const { isReviewerRole, isSubmitterRole } = require('../common/helper')
+const { DEVELOPMENT_PROJECT_TYPE } = require('../constants')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
@@ -41,6 +42,12 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     if (!roleToSet) {
       throw new Error('Invalid role id ' + roleId)
     }
+  }
+
+  const compInfo = await RegistrationDAO.registerComponentInquiry(userId, legacyChallengeId)
+  if (compInfo.projectCategoryId === DEVELOPMENT_PROJECT_TYPE) {
+    const rating = RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseId, 10), parseInt(compInfo.projectCategoryId, 10)) ? compInfo.rating : null
+    await RegistrationDAO.insertChallengeResult(legacyChallengeId, userId, 0, 0, rating)
   }
 
   let projectPhaseId = null
@@ -87,8 +94,20 @@ async function removeRole (legacyChallengeId, roleId, userId) {
   if (isReviewerRole(roleId)) {
     logger.info('Remove reviewer payment first.')
     await ProjectPaymentDAO.removeReviewerPayment(existingResource.resourceid)
+  } else {
+    try {
+      await RegistrationDAO.deleteProjectResult(legacyChallengeId, userId)
+    } catch (e) {
+      logger.error('Error deleting project result', e)
+    }
+    try {
+      await RegistrationDAO.deleteComponentInquiry(legacyChallengeId, userId)
+    } catch (e) {
+      logger.error('Error deleting component inquiry', e)
+    }
   }
   await ProjectServices.removeResource(existingResource)
+
 }
 
 /**
