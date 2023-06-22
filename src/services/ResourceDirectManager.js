@@ -48,6 +48,11 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
   if (compInfo.projectCategoryId === DEVELOPMENT_PROJECT_TYPE) {
     const rating = RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseId, 10), parseInt(compInfo.projectCategoryId, 10)) ? compInfo.rating : null
     await RegistrationDAO.insertChallengeResult(legacyChallengeId, userId, 0, 0, rating)
+    // User reliability
+    const [rel] = await RegistrationDAO.getUserReliability(userId, legacyChallengeId)
+    if (rel) {
+      await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
+    }
   }
 
   let projectPhaseId = null
@@ -61,7 +66,7 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     logger.info(`Add reviewer payment. Payment type is set to ${isReviewerPaymentManual ? 'manual' : 'automatic'}`)
     await ProjectPaymentDAO.persistReviewerPayment(userId, resourceId, reviewerPaymentAmount, config.LEGACY_PROJECT_REVIEW_PAYMENT_TYPE_ID)
     if (isReviewerPaymentManual) {
-      await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_MANUAL_PAYMENTS, 'true');
+      await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_USER_RELIABILITY, rel*100);
     }
   } else {
     logger.info(`Not a reviewer role ${roleId} or reviewerPaymentAmount:${reviewerPaymentAmount} is null`)
