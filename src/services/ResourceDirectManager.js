@@ -6,7 +6,6 @@ const logger = require('../common/logger')
 const config = require('config')
 const { find, toString } = require('lodash')
 const { isReviewerRole, isSubmitterRole } = require('../common/helper')
-const { DEVELOPMENT_PROJECT_TYPE } = require('../constants')
 
 /**
  * Assign the given roleId to the specified userId in the given project.
@@ -44,13 +43,13 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     }
   }
 
-  const compInfo = await RegistrationDAO.registerComponentInquiry(userId, legacyChallengeId)
-  let { rating } = compInfo
-  if (compInfo.projectCategoryId === DEVELOPMENT_PROJECT_TYPE) {
-    if (!RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseId, 10), parseInt(compInfo.projectCategoryId, 10)) ? compInfo.rating : null) {
-      rating = null
-    }
+  if (isSubmitterRole(roleId)) {
+    const compInfo = await RegistrationDAO.registerComponentInquiry(userId, legacyChallengeId)
+    let { rating } = compInfo
     if (!isStudioChallenge) {
+      if (!RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseId, 10), parseInt(compInfo.projectCategoryId, 10)) ? compInfo.rating : null) {
+        rating = null
+      }
       await RegistrationDAO.insertChallengeResult(legacyChallengeId, userId, 0, 0, rating)
       // User reliability
       const [rel] = await RegistrationDAO.getUserReliability(userId, legacyChallengeId)
@@ -104,7 +103,7 @@ async function removeRole (legacyChallengeId, roleId, userId) {
   if (isReviewerRole(roleId)) {
     logger.info('Remove reviewer payment first.')
     await ProjectPaymentDAO.removeReviewerPayment(existingResource.resourceid)
-  } else {
+  } else if (isSubmitterRole(roleId)) {
     try {
       await RegistrationDAO.deleteProjectResult(legacyChallengeId, userId)
     } catch (e) {
