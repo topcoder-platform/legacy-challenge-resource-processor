@@ -348,24 +348,6 @@ async function getComponentInfo (challengeId) {
   return helper.queryDataFromDB(QUERY_GET_COMPONENT_INFO, [challengeId, challengeId, challengeId, challengeId, challengeId])
 }
 
-const QUERY_UPDATE_COMPONENT_VERSION_INFO = `
-UPDATE comp_versions
-SET rating = ?
-WHERE comp_vers_id = ?
-`
-
-/**
- * Update component version info
- * @param componentVersionId the componentVersionId to pass
- * @param rating the rating to pass
- * @param componentVersionId
- * @param rating
- * @return the result
- */
-async function updateComponentVersionInfo (componentVersionId, rating) {
-  return helper.executeSQLonDB(QUERY_UPDATE_COMPONENT_VERSION_INFO, [rating, componentVersionId])
-}
-
 const QUERY_GET_USER_RATING = `
 SELECT
 nvl((SELECT rating FROM user_rating 
@@ -577,9 +559,10 @@ async function registerComponentInquiry (userId, challengeId) {
     compInfo.version,
     challengeId
   )
-  await updateComponentVersionInfo(compInfo.componentVersionId, rating)
-  const [updated] = await getComponentInfo(challengeId)
-  return updated
+  return {
+    ...compInfo,
+    rating,
+  }
 }
 
 /**
