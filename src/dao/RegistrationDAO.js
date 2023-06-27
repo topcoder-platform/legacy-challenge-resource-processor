@@ -638,7 +638,6 @@ module.exports = {
   getUseTermsOfAgree,
   RESOURCE_TYPE_MANUAL_PAYMENTS,
   registerComponentInquiry,
-  updateComponentVersionInfo,
   isRatingSuitableDevelopment,
   deleteProjectResult,
   deleteComponentInquiry,
