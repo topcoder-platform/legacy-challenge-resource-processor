@@ -49,7 +49,7 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     const compInfo = await RegistrationDAO.registerComponentInquiry(userId, legacyChallengeId)
     let { rating } = compInfo
     if (!isStudioChallenge) {
-      if (!RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseId, 10), parseInt(compInfo.projectCategoryId, 10)) ? compInfo.rating : null) {
+      if (!RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseid, 10), parseInt(compInfo.projectcategoryid, 10)) ? compInfo.rating : null) {
         rating = null
       }
       logger.info('Register project result')
