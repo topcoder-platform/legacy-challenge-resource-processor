@@ -542,6 +542,7 @@ async function registerComponentInquiry (userId, challengeId) {
   if (!compInfo) {
     throw new Error(`Challenge with id: ${challengeId} does not exist`)
   }
+  logger.info(`compInfo: ${JSON.stringify(compInfo)}`)
   const [userRating] = await getUserRating(userId, parseInt(compInfo.projectCategoryId, 10) + 111)
   const rating = null
   if (userRating) {
