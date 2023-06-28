@@ -43,17 +43,21 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     }
   }
 
+  logger.info('Before isSubmitterRole')
   if (isSubmitterRole(roleId)) {
+    logger.info('is submitter role, it should register component inquiry and project result')
     const compInfo = await RegistrationDAO.registerComponentInquiry(userId, legacyChallengeId)
     let { rating } = compInfo
     if (!isStudioChallenge) {
       if (!RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseId, 10), parseInt(compInfo.projectCategoryId, 10)) ? compInfo.rating : null) {
         rating = null
       }
+      logger.info('Register project result')
       await RegistrationDAO.insertChallengeResult(legacyChallengeId, userId, 0, 0, rating)
       // User reliability
       const [rel] = await RegistrationDAO.getUserReliability(userId, legacyChallengeId)
       if (rel) {
+        logger.info('Update user reliability')
         await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_USER_RELIABILITY, rel*100);
       }
     }
