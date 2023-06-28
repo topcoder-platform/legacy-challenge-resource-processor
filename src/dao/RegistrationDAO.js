@@ -544,7 +544,7 @@ async function registerComponentInquiry (userId, challengeId) {
   }
   logger.info(`compInfo: ${JSON.stringify(compInfo)}`)
   const [userRating] = await getUserRating(userId, parseInt(compInfo.projectcategoryid, 10) + 111)
-  const rating = null
+  let rating = null
   if (userRating) {
     rating = userRating.rating
   }
