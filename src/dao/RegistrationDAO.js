@@ -543,7 +543,7 @@ async function registerComponentInquiry (userId, challengeId) {
     throw new Error(`Challenge with id: ${challengeId} does not exist`)
   }
   logger.info(`compInfo: ${JSON.stringify(compInfo)}`)
-  const [userRating] = await getUserRating(userId, parseInt(compInfo.projectCategoryId, 10) + 111)
+  const [userRating] = await getUserRating(userId, parseInt(compInfo.projectcategoryid, 10) + 111)
   const rating = null
   if (userRating) {
     rating = userRating.rating
@@ -551,12 +551,12 @@ async function registerComponentInquiry (userId, challengeId) {
   const nextId = await getCompInquirySeqNextId()
   await insertRegistrationRecord(
     nextId,
-    compInfo.componentId,
+    compInfo.componentid,
     userId,
     compInfo.comments,
     1,
     rating,
-    parseInt(compInfo.projectCategoryId, 10) === DESIGN_PROJECT_TYPE || parseInt(compInfo.projectCategoryId, 10) == DEVELOPMENT_PROJECT_TYPE ? compInfo.projectCategoryId : null,
+    parseInt(compInfo.projectcategoryid, 10) === DESIGN_PROJECT_TYPE || parseInt(compInfo.projectcategoryid, 10) == DEVELOPMENT_PROJECT_TYPE ? compInfo.projectcategoryid : null,
     userId,
     compInfo.version,
     challengeId
