@@ -135,7 +135,7 @@ async function _updateChallengeResource (message, isDelete) {
       await ResourceDirectManager.removeResource(legacyChallengeID, resourceRoleId, userId)
     } else {
       logger.debug(`Creating Challenge Resource ${userId} to challenge ${legacyChallengeID} with roleID ${resourceRoleId}`)
-      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, { copilotPaymentAmount, manual: false }, reviewerPaymentData)
+      await ResourceDirectManager.addResource(legacyChallengeID, resourceRoleId, userId, handle, { copilotPaymentAmount, manual: false }, reviewerPaymentData, isStudioChallenge)
     }
   }
   if (config.RESOURCE_ROLES_WITHOUT_TIMELINE_NOTIFICATIONS.indexOf(resourceRole.id) === -1) {

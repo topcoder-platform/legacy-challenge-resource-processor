@@ -1,9 +1,12 @@
 const helper = require('../common/helper')
 const moment = require('moment')
 const logger = require('../common/logger')
+const { getCompInquirySeqNextId } = require('./SequenceDAO')
+const { DESIGN_PROJECT_TYPE, DEVELOPMENT_PROJECT_TYPE, COMPONENT_TESTING_PROJECT_TYPE } = require('../constants')
 
 const RESOURCE_TYPE_EXT_REF_ID = 1
 const RESOURCE_TYPE_HANDLE_ID = 2
+const RESOURCE_TYPE_USER_RELIABILITY = 5
 const RESOURCE_TYPE_REG_DATE = 6
 const RESOURCE_TYPE_APPEALS_COMPLETED = 13
 const RESOURCE_TYPE_MANUAL_PAYMENTS = 15
@@ -359,6 +362,7 @@ FROM dual
  * @return the rating result
  */
 async function getUserRating (userId, phaseId) {
+  logger.info(`Get user rating for user ${userId} and phase ${phaseId}`)
   return helper.queryDataFromDB(QUERY_GET_USER_RATING, [phaseId, userId])
 }
 
@@ -527,6 +531,91 @@ async function getUseTermsOfAgree (userId, challengeId, roleId) {
   return helper.queryDataFromDB(QUERY_GET_CHALLENGE_TERMS_OF_USE, [userId, challengeId, roleId])
 }
 
+/**
+ * Register component inquiry
+ * @param {Number} userId the user id
+ * @param {Number} challengeId the challenge id
+ * @returns The component info object
+ */
+async function registerComponentInquiry (userId, challengeId) {
+  const [compInfo] = await getComponentInfo(challengeId)
+  if (!compInfo) {
+    throw new Error(`Challenge with id: ${challengeId} does not exist`)
+  }
+  logger.info(`compInfo: ${JSON.stringify(compInfo)}`)
+  const [userRating] = await getUserRating(userId, parseInt(compInfo.projectcategoryid, 10) + 111)
+  let rating = null
+  if (userRating) {
+    rating = userRating.rating
+  }
+  const nextId = await getCompInquirySeqNextId()
+  await insertRegistrationRecord(
+    nextId,
+    compInfo.componentid,
+    userId,
+    compInfo.comments,
+    1,
+    rating,
+    parseInt(compInfo.projectcategoryid, 10) === DESIGN_PROJECT_TYPE || parseInt(compInfo.projectcategoryid, 10) == DEVELOPMENT_PROJECT_TYPE ? compInfo.projectcategoryid : null,
+    userId,
+    compInfo.version,
+    challengeId
+  )
+  return {
+    ...compInfo,
+    rating,
+  }
+}
+
+/**
+ * Check if the rating suit for software category contests.
+ * The code logic is duplicated from server-side java code.
+ *
+ * @param phaseId the phase id.
+ * @param projectCategoryId the category id.
+ * @return true if the rating is suitable for development (software) category challenge, otherwise false.
+ */
+function isRatingSuitableDevelopment (phaseId, projectCategoryId) {
+  let suitable = false
+  if (projectCategoryId === COMPONENT_TESTING_PROJECT_TYPE) {
+    if (phaseId === 113) {
+      suitable = true
+    }
+  } else if (projectCategoryId + 111 === phaseId) {
+    suitable = true
+  }
+  return suitable
+}
+
+const DELETE_PROJECT_RESULT = `
+DELETE FROM project_result
+WHERE project_id = ?
+AND user_id = ?
+`
+
+/**
+ * Delete project result
+ * @param {Number} challengeId the challenge id
+ * @param {Number} userId the user id
+ */
+async function deleteProjectResult (challengeId, userId) {
+  return helper.executeSQLonDB(DELETE_PROJECT_RESULT, [challengeId, userId])
+}
+
+const DELETE_COMPONENT_INQUIRY = `
+DELETE FROM component_inquiry
+WHERE project_id = ?
+AND user_id = ?
+`
+
+/**
+ * Delete component inquiry
+ * @param {Number} challengeId the challenge id
+ * @param {Number} userId the user id
+ */
+async function deleteComponentInquiry (challengeId, userId) {
+  return helper.executeSQLonDB(DELETE_COMPONENT_INQUIRY, [challengeId, userId])
+}
 module.exports = {
   persistResource,
   persistResourceWithRoleId,
@@ -549,5 +638,9 @@ module.exports = {
   getPhaseIdForPhaseTypeId,
   getResourceRoles,
   getUseTermsOfAgree,
-  RESOURCE_TYPE_MANUAL_PAYMENTS
+  RESOURCE_TYPE_MANUAL_PAYMENTS,
+  registerComponentInquiry,
+  isRatingSuitableDevelopment,
+  deleteProjectResult,
+  deleteComponentInquiry,
 }

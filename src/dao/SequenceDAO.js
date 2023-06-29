@@ -32,11 +32,11 @@ async function getResourceSeqNextId () {
   return getNextIdBySQL(QUERY_GET_RESOURCE_ID_NEXT)
 }
 
-async function getCompInQuerySeqNextId () {
+async function getCompInquirySeqNextId () {
   return getNextIdBySQL(QUERY_GET_COMP_INQUIRY_ID_NEXT)
 }
 
 module.exports = {
   getResourceSeqNextId,
-  getCompInQuerySeqNextId
+  getCompInquirySeqNextId
 }

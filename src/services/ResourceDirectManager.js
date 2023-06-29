@@ -16,7 +16,7 @@ const { isReviewerRole, isSubmitterRole } = require('../common/helper')
  *            the id of the user.
  * @param handle
  */
-async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPayment, reviewerPayment) {
+async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPayment, reviewerPayment, isStudioChallenge) {
   const { reviewerPaymentAmount, manual: isReviewerPaymentManual } = reviewerPayment || {};
   const { copilotPaymentAmount } = copilotPayment || {};
 
@@ -40,6 +40,26 @@ async function assignRole (legacyChallengeId, roleId, userId, handle, copilotPay
     }
     if (!roleToSet) {
       throw new Error('Invalid role id ' + roleId)
+    }
+  }
+
+  logger.info('Before isSubmitterRole')
+  if (isSubmitterRole(roleId)) {
+    logger.info('is submitter role, it should register component inquiry and project result')
+    const compInfo = await RegistrationDAO.registerComponentInquiry(userId, legacyChallengeId)
+    let { rating } = compInfo
+    if (!isStudioChallenge) {
+      if (!RegistrationDAO.isRatingSuitableDevelopment(parseInt(compInfo.phaseid, 10), parseInt(compInfo.projectcategoryid, 10)) ? compInfo.rating : null) {
+        rating = null
+      }
+      logger.info('Register project result')
+      await RegistrationDAO.insertChallengeResult(legacyChallengeId, userId, 0, 0, rating)
+      // User reliability
+      const [rel] = await RegistrationDAO.getUserReliability(userId, legacyChallengeId)
+      if (rel) {
+        logger.info('Update user reliability')
+        await RegistrationDAO.persistResourceInfo(userId, resourceId, RegistrationDAO.RESOURCE_TYPE_USER_RELIABILITY, rel*100);
+      }
     }
   }
 
@@ -87,8 +107,20 @@ async function removeRole (legacyChallengeId, roleId, userId) {
   if (isReviewerRole(roleId)) {
     logger.info('Remove reviewer payment first.')
     await ProjectPaymentDAO.removeReviewerPayment(existingResource.resourceid)
+  } else if (isSubmitterRole(roleId)) {
+    try {
+      await RegistrationDAO.deleteProjectResult(legacyChallengeId, userId)
+    } catch (e) {
+      logger.error('Error deleting project result', e)
+    }
+    try {
+      await RegistrationDAO.deleteComponentInquiry(legacyChallengeId, userId)
+    } catch (e) {
+      logger.error('Error deleting component inquiry', e)
+    }
   }
   await ProjectServices.removeResource(existingResource)
+
 }
 
 /**
@@ -100,8 +132,8 @@ async function removeRole (legacyChallengeId, roleId, userId) {
  * @param handle
  * @param copilotPaymentAmount
  */
-async function addResource (challengeId, resourceRoleId, userId, handle, copilotPayment, reviewerPayment) {
-  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPayment, reviewerPayment)
+async function addResource (challengeId, resourceRoleId, userId, handle, copilotPayment, reviewerPayment, isStudioChallenge) {
+  await assignRole(challengeId, resourceRoleId, userId, handle, copilotPayment, reviewerPayment, isStudioChallenge)
 }
 
 /**
