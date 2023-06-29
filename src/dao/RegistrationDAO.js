@@ -362,7 +362,6 @@ FROM dual
  * @return the rating result
  */
 async function getUserRating (userId, phaseId) {
-  logger.info(`Get user rating for user ${userId} and phase ${phaseId}`)
   return helper.queryDataFromDB(QUERY_GET_USER_RATING, [phaseId, userId])
 }
 
@@ -542,7 +541,6 @@ async function registerComponentInquiry (userId, challengeId) {
   if (!compInfo) {
     throw new Error(`Challenge with id: ${challengeId} does not exist`)
   }
-  logger.info(`compInfo: ${JSON.stringify(compInfo)}`)
   const [userRating] = await getUserRating(userId, parseInt(compInfo.projectcategoryid, 10) + 111)
   let rating = null
   if (userRating) {
